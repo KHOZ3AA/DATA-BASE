@@ -1417,14 +1417,14 @@
 
                 // Header (Question)
                 const header = document.createElement('button');
-                header.className = "w-full text-left p-4 font-semibold text-slate-800 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors focus:outline-none";
+                header.className = "w-full p-4 font-semibold text-slate-800 flex flex-col gap-3 bg-white hover:bg-slate-50 transition-colors focus:outline-none";
                 header.innerHTML = `
-                    <div class="flex-1 ml-4 text-left leading-relaxed text-slate-700" dir="ltr">
-                        <span class="text-blue-500 mr-2 font-bold">${item.id}.</span>${item.q}
-                    </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex justify-between items-center w-full" dir="ltr">
                         <span class="text-xs px-2 py-1 rounded-full whitespace-nowrap ${catColors[item.cat]}">${catLabels[item.cat]}</span>
                         <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 pointer-events-none toggle-icon"></i>
+                    </div>
+                    <div class="w-full text-left leading-relaxed text-slate-700" dir="ltr">
+                        <span class="text-blue-500 mr-2 font-bold">${item.id}.</span>${item.q}
                     </div>
                 `;
 
