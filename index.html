@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حلول التطبيقات العملية - SQL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .sql-keyword {
+            color: #66d9ef;
+            font-weight: bold;
+        }
+
+        .sql-string {
+            color: #e6db74;
+        }
+
+        .sql-number {
+            color: #ae81ff;
+        }
+
+        /* Custom Scrollbar for code blocks */
+        pre::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        pre::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        pre::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        pre::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white shadow-lg py-8 px-4 mb-8">
+        <div class="max-w-5xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4"><i class="fas fa-database mr-2"></i> موسوعة حلول تطبيقات SQL
+            </h1>
+
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4">
+
+        <!-- Tabs Navigation -->
+        <div class="flex justify-center mb-8 space-x-4 space-x-reverse">
+            <button id="tabQuestionsBtn"
+                class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-md transition-colors focus:outline-none"><i
+                    class="fas fa-laptop-code ml-2"></i> التطبيقات العملية</button>
+            <button id="tabLecturesBtn"
+                class="px-8 py-3 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold shadow-sm transition-colors focus:outline-none"><i
+                    class="fas fa-book-open ml-2"></i> شرح السكاشن</button>
+            <button id="tabMcqBtn"
+                class="px-8 py-3 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold shadow-sm transition-colors focus:outline-none"><i
+                    class="fas fa-question-circle ml-2"></i> اختبار MCQ</button>
+        </div>
+
+        <!-- Questions Section -->
+        <div id="questionsSection">
+            <!-- Controls (Search & Filter) -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row gap-4">
+                <div class="relative flex-1">
+                    <i class="fas fa-search absolute right-4 top-3.5 text-slate-400"></i>
+                    <input type="text" id="searchInput" placeholder="ابحث في الأسئلة أو الأكواد..."
+                        class="w-full bg-slate-50 border border-slate-300 text-slate-900 rounded-lg pr-12 pl-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
+                </div>
+                <select id="filterSelect"
+                    class="bg-slate-50 border border-slate-300 text-slate-900 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                    <option value="All">جميع السكاشن (All)</option>
+                    <option value="Les01">سكشن 1: أساسيات (Basic SELECT)</option>
+                    <option value="Les02">سكشن 2: تقييد وترتيب (Restrict & Sort)</option>
+                    <option value="Les03">سكشن 3: دوال الصف الواحد (Single-Row Functions)</option>
+                    <option value="Les04">سكشن 4: تجميع البيانات (Group Functions)</option>
+                    <option value="Les06">سكشن 6: ربط الجداول (Joins)</option>
+                    <option value="Les07">سكشن 7: استعلامات فرعية (Subqueries)</option>
+                    <option value="Les09">سكشن 9: تعديل البيانات (DML)</option>
+                </select>
+            </div>
+
+            <!-- Stats -->
+            <div class="mb-4 text-slate-600 font-medium px-2 flex justify-between">
+                <span id="resultCount">جاري تحميل الأسئلة...</span>
+                <button id="expandAllBtn" class="text-blue-600 hover:text-blue-800"><i
+                        class="fas fa-expand-alt mr-1"></i> فتح الكل</button>
+            </div>
+
+            <!-- Questions List -->
+            <div id="questionsContainer" class="space-y-4">
+                <!-- Items will be generated here by JS -->
+            </div>
+
+        </div> <!-- End of Questions Section -->
+
+        <!-- Lectures Section (New) -->
+        <div id="lecturesSection" class="hidden space-y-8">
+
+            <!-- Intro -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-3"><i
+                        class="fas fa-info-circle text-blue-500 ml-2"></i> مقدمة في قواعد البيانات (Intro)</h2>
+                <div class="text-slate-700 leading-relaxed space-y-5">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">1. تطور حفظ البيانات ومفهوم قواعد البيانات
+                            العلائقية:</h3>
+                        <p>البيانات قديماً كانت تُحفظ في دواليب ورقية أو جداول إلكترونية (مثل الإكسيل)، ولكن الحل الأذكى
+                            والأكثر كفاءة هو قواعد البيانات (Database). العالم "إدجار كود" (Dr. E. F. Codd) سنة 1970 وضع
+                            حجر الأساس لما يُسمى بقواعد البيانات العلائقية (Relational Database). وهي ببساطة عبارة عن
+                            جداول ثنائية الأبعاد مكونة من صفوف وأعمدة مترابطة ببعضها.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">2. دورة حياة النظام (System Development Life
+                            Cycle):</h3>
+                        <p>أي نظام لا يُبنى عشوائياً، بل يمر بمراحل: التحليل والاستراتيجية، ثم التصميم، ثم البناء
+                            والتوثيق، وأخيراً مرحلة التشغيل الفعلي للمستخدمين.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">3. رسم وتصميم البيانات (ER Model):</h3>
+                        <p>قبل إنشاء الجداول على الكمبيوتر، نقوم برسمها وتصميمها. نمثل "الكيان" (Entity) - مثل الموظف أو
+                            القسم - في صندوق. أسفل هذا الكيان نكتب الخصائص (Attributes)، وتأخذ علامات مميزة للتمييز
+                            بينها:</p>
+                        <ul
+                            class="list-disc list-inside mt-2 pr-4 space-y-1 text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <li><strong class="text-blue-700">نجمة (*):</strong> للبيانات الإجبارية التي لا يمكن تركها
+                                فارغة.</li>
+                            <li><strong class="text-blue-700">حرف (o):</strong> للبيانات الاختيارية.</li>
+                            <li><strong class="text-blue-700">علامة الشباك (#):</strong> للمُعرف الفريد أو الأساسي
+                                (Unique Identifier) الذي لا يتكرر.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">4. ربط الجداول (Keys):</h3>
+                        <p>لضمان عدم تداخل البيانات، كل صف في الجدول يجب أن يمتلك مفتاح أساسي (Primary Key) لا يتكرر
+                            أبداً (مثل الرقم القومي أو رقم الموظف). ولربط جدول الموظفين بجدول الأقسام مثلاً، نأخذ هذا
+                            الرقم ونضعه في الجدول الآخر، ويُسمى حينها مفتاح أجنبي (Foreign Key).</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">5. عائلات لغة SQL:</h3>
+                        <p>الـ SQL هي اللغة التي نتواصل بها مع قاعدة البيانات لإعطائها الأوامر، وتنقسم إلى 4 عائلات
+                            رئيسية:</p>
+                        <ul
+                            class="list-disc list-inside mt-2 pr-4 space-y-1 text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <li><strong class="text-emerald-600">DML (للتعديل والاستعلام):</strong> مثل SELECT لعرض
+                                البيانات، و INSERT للإضافة، و UPDATE للتحديث، و DELETE للحذف.</li>
+                            <li><strong class="text-emerald-600">DDL (لبناء وتغيير هيكل الجداول):</strong> مثل CREATE
+                                لإنشاء جدول، و ALTER لتعديله، و DROP لمسحه نهائياً.</li>
+                            <li><strong class="text-emerald-600">TCL (للتحكم في حفظ العمليات):</strong> مثل COMMIT
+                                لتأكيد وحفظ الشغل، و ROLLBACK للتراجع عن الخطأ.</li>
+                            <li><strong class="text-emerald-600">DCL (للصلاحيات):</strong> مثل GRANT لإعطاء صلاحية
+                                لمستخدم، و REVOKE لسحبها.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Intro Examples -->
+                    <div class="mt-6 bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-4"><i
+                                class="fas fa-laptop-code text-indigo-500 ml-2"></i> أمثلة عملية محلولة:</h3>
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الأول: أنواع أوامر SQL</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> طلب منك
+                                مديرك "إنشاء" جدول جديد للعملاء، وبعدين "إضافة" بيانات عميل جديد فيه. إيه عائلات أوامر
+                                الـ SQL اللي هتستخدمها؟</p>
+                            <p class="text-slate-700 mt-2"><strong class="text-emerald-700">الحل:</strong> لإنشاء الجدول
+                                هنستخدم أمر <code>CREATE</code> وده بيتبع عائلة <strong>DDL</strong> (لغة تعريف
+                                البيانات). ولإضافة بيانات العميل هنستخدم أمر <code>INSERT</code> وده بيتبع عائلة
+                                <strong>DML</strong> (لغة معالجة البيانات).
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثاني: تصميم البيانات (ER Model)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> لو بنصمم
+                                نظام لمستشفى، وعندنا "مريض" ليه (رقم قومي لا يتكرر، اسم، وتاريخ ميلاد اختياري). إزاي
+                                بنمثل ده في الرسم؟</p>
+                            <p class="text-slate-700 mt-2"><strong class="text-emerald-700">الحل:</strong> "المريض" هو
+                                الكيان (Entity). "الرقم القومي" هو المفتاح الأساسي (Primary UID) وبنميزه بعلامة
+                                <code>#</code>. "الاسم" خاصية إجبارية (Mandatory Attribute) وبنديها علامة النجمة
+                                <code>*</code>. و"تاريخ الميلاد" خاصية اختيارية (Optional Attribute) وبتاخد حرف
+                                <code>o</code>.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-2">
+                            <h4 class="font-bold text-slate-800">المثال الثالث: ربط الجداول (Keys)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> إزاي بنربط
+                                جدول الموظفين (EMPLOYEES) بجدول الأقسام (DEPARTMENTS) برمجياً؟</p>
+                            <p class="text-slate-700 mt-2"><strong class="text-emerald-700">الحل:</strong> عن طريق
+                                المفاتيح! كل قسم في جدول الأقسام ليه رقم مميز مستحيل يتكرر اسمه المفتاح الأساسي (Primary
+                                Key). عشان نربط الموظف بقسمه، بناخد الرقم ده ونحطه كعمود جوه جدول الموظفين، وساعتها
+                                بيُسمى المفتاح الأجنبي (Foreign Key).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Les01 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-3"><i
+                        class="fas fa-search text-blue-500 ml-2"></i> سكشن 1 (Les01): أساسيات سحب وعرض البيانات</h2>
+                <div class="text-slate-700 leading-relaxed space-y-5">
+                    <div>
+                        <p class="mb-3">أمر <code>SELECT</code> هو أهم وأكتر أمر هتستخدمه، وبيدينا 3 قدرات أساسية:
+                            اختيار أعمدة معينة (Projection)، أو اختيار صفوف معينة (Selection)، أو ربط بيانات من أكتر من
+                            جدول (Join).</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">1. الصيغة الأساسية (Basic Syntax):</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li>لو عاوز تعرض كل الأعمدة، بتستخدم علامة النجمة <code>*</code>.</li>
+                            <li>لو عاوز أعمدة معينة بس، بتكتب أسماءها وتفصل بينها بفاصلة (Comma).</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">2. قواعد كتابة الكود:</h3>
+                        <p>أوامر SQL مش حساسة لحالة الأحرف (Not case-sensitive)، يعني SELECT هي هي select. وتقدر تكتب
+                            الكود على سطر واحد أو تقسمه على كذا سطر عشان يكون أسهل في القراءة، بس لازم في النهاية تقفل
+                            الأمر بفاصلة منقوطة (;).</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">3. العمليات الحسابية (Arithmetic Expressions):
+                        </h3>
+                        <p>تقدر تعمل عمليات حسابية مباشرة جوه الاستعلام زي الجمع <code>+</code>، الطرح <code>-</code>،
+                            الضرب <code>*</code>، والقسمة <code>/</code>. ولازم تاخد بالك إن الضرب والقسمة ليهم أولوية
+                            وبيتنفيذوا الأول، إلا لو استخدمت الأقواس <code>()</code> لتغيير الأولوية.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">4. القيم الفارغة (Null Values):</h3>
+                        <p>الـ Null مش معناه رقم صفر ولا مسافة فاضية؛ ده معناه إن القيمة دي مجهولة، غير متاحة، أو مش
+                            متسجلة من الأساس. المعلومة الأهم هنا إن أي عملية حسابية بتتعمل على قيمة Null، النتيجة
+                            بتاعتها بتطلع Null برضه.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">5. الأسماء المستعارة للأعمدة (Column Aliases):
+                        </h3>
+                        <p>عشان تخلي شكل النتيجة مفهوم أكتر، تقدر تغير اسم العمود المعروض. بتعمل ده بكتابة الاسم الجديد
+                            بعد العمود مباشرة (أو باستخدام كلمة <code>AS</code> قبلها). لو الاسم الجديد جواه مسافات أو
+                            حروف خاصة، لازم تحطه بين علامتين تنصيص مزدوجة <code>" "</code>.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">6. دمج النصوص (Concatenation) والنصوص الثابتة
+                            (Literals):</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li>لو عاوز "تلزق" عمودين في بعض أو تدمجهم مع نص، بنستخدم معامل الدمج اللي هو عبارة عن خطين
+                                طوليين <code>||</code>.</li>
+                            <li>أي نص ثابت أو تاريخ عاوز تضيفه للنتيجة لازم تحطه بين علامتين تنصيص مفردة
+                                <code>' '</code>. وفي حالة إن النص نفسه جواه علامة تنصيص، بنستخدم مشغل الـ (q) عشان
+                                قاعدة البيانات متتلخبطش، زي كده: <code>q'[, it's assigned... ]'</code>.
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">7. منع التكرار (Duplicate Rows):</h3>
+                        <p>في العادي، SELECT بتعرض كل الصفوف حتى لو متكررة. عشان تخلي النتيجة تظهر بدون أي تكرار، بتكتب
+                            كلمة <code>DISTINCT</code> بعد SELECT مباشرة.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">8. عرض هيكل الجدول (DESCRIBE):</h3>
+                        <p>لو عاوز تعرف الجدول بيتكون من إيه أصلاً (أسماء الأعمدة، ونوع البيانات اللي فيها، وهل بتقبل
+                            Null ولا لأ)، بنستخدم أمر <code>DESCRIBE</code> وبعده اسم الجدول.</p>
+                    </div>
+
+                    <!-- Les01 Examples -->
+                    <div class="mt-6 bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-4"><i
+                                class="fas fa-laptop-code text-indigo-500 ml-2"></i> أمثلة عملية محلولة:</h3>
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الأول: العمليات الحسابية والأسماء المستعارة
+                                (Aliases)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض اسم
+                                الموظف الأخير وراتبه السنوي (الراتب الشهري مضروب في 12) وسمّي عمود النتيجة الجديد
+                                "Annual Salary".</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name, salary * <span class="sql-number">12</span> <span class="sql-keyword">AS</span> <span class="sql-string">"Annual Salary"</span>
+<span class="sql-keyword">FROM</span> employees;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> قدرنا نعمل عملية حسابية جوه
+                                الكود مباشرة باستخدام علامة الضرب <code>*</code>. وعشان طلب مننا نغير اسم العمود المعروض
+                                لاسم مكون من كلمتين بينهم مسافة، حطينا الاسم المستعار بين علامتين تنصيص مزدوجة
+                                <code>" "</code>.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثاني: دمج النصوص (Concatenation)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اكتب استعلام
+                                يعرض نتيجة شكلها كده: "اسم الموظف is a الوظيفة" (مثال: King is a AD_PRES).</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name || <span class="sql-string">' is a '</span> || job_id <span class="sql-keyword">AS</span> <span class="sql-string">"Employee Details"</span>
+<span class="sql-keyword">FROM</span> employees;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> عشان نلزق عمود الاسم مع عمود
+                                الوظيفة، استخدمنا معامل الدمج اللي هو خطين طوليين <code>||</code>. وعشان نحط نص ثابت في
+                                النص (كلمة is a والمسافات اللي حواليها)، لازم نحط النص ده بين علامتين تنصيص مفردة
+                                <code>' '</code>.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-2">
+                            <h4 class="font-bold text-slate-800">المثال الثالث: منع التكرار (DISTINCT)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> استخرج أرقام
+                                الأقسام المتسجلة في جدول الموظفين بحيث يظهر كل قسم مرة واحدة فقط بدون تكرار.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> <span class="sql-keyword">DISTINCT</span> department_id
+<span class="sql-keyword">FROM</span> employees;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> في العادي أمر
+                                <code>SELECT</code> بيعرض كل الصفوف، لكن بمجرد إضافة كلمة <code>DISTINCT</code> قبل اسم
+                                العمود، قاعدة البيانات بتفلتر النتيجة وتشيل أي أرقام مقررة.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Les02 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-3"><i
+                        class="fas fa-filter text-blue-500 ml-2"></i> سكشن 2 (Les02): تقييد وترتيب البيانات</h2>
+                <div class="text-slate-700 leading-relaxed space-y-5">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">1. جملة الشرط (WHERE Clause):</h3>
+                        <p>بنستخدم WHERE بعد جملة FROM عشان نحدد صفوف معينة بس هي اللي تظهر بناءً على شرط معين. لو الشرط
+                            ده بيشمل نصوص أو تواريخ، لازم نحطهم بين علامتين تنصيص مفردة <code>' '</code>. كمان لازم تاخد
+                            بالك إن البيانات النصية جوه الجداول بتكون حساسة لحالة الأحرف (Case-sensitive)، والتواريخ
+                            بتعتمد على التنسيق الافتراضي اللي هو (DD-MON-RR).</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">2. معاملات المقارنة (Comparison Operators):
+                        </h3>
+                        <p>دي الرموز الأساسية اللي بنستخدمها عشان نقارن البيانات: <code>=</code> (يساوي)، <code>></code>
+                            (أكبر من)، <code><</code> (أصغر من)، <code>>=</code> (أكبر من أو يساوي)، <code><=</code>
+                            (أصغر من أو يساوي)، و <code><></code> (لا يساوي).</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">3. شروط المقارنة المتقدمة:</h3>
+                        <ul
+                            class="list-disc list-inside mt-2 pr-4 space-y-1 text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <li><strong class="text-blue-700">BETWEEN ... AND:</strong> بتجيب القيم اللي واقعة بين حد
+                                أدنى وحد أقصى (Inclusive).</li>
+                            <li><strong class="text-blue-700">IN (set):</strong> بنستخدمها عشان نختبر لو القيمة موجودة
+                                جوه قائمة معينة.</li>
+                            <li><strong class="text-blue-700">LIKE:</strong> للبحث عن أنماط النصوص. علامة <code>%</code>
+                                تمثل أي عدد من الحروف، وعلامة <code>_</code> لتمثيل حرف واحد بالظبط. لو حابين نبحث عن
+                                علامة <code>%</code> أو <code>_</code> نفسهم بنستخدم <code>ESCAPE</code>.</li>
+                            <li><strong class="text-blue-700">IS NULL:</strong> لاختبار إذا كانت الخانة فارغة تماماً.
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">4. المعاملات المنطقية (Logical Operators):
+                        </h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">AND:</strong> بترجع النتيجة بس لو كل الشروط المرتبطة بيها
+                                اتحققت.</li>
+                            <li><strong class="text-blue-700">OR:</strong> بترجع النتيجة لو شرط واحد على الأقل هو اللي
+                                صحيح.</li>
+                            <li><strong class="text-blue-700">NOT:</strong> بتستخدم لعكس الشرط.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">5. أولويات التنفيذ (Rules of Precedence):</h3>
+                        <p>لو كتبنا AND و OR مع بعض في نفس الكود، قاعدة البيانات بتنفذ الـ AND الأول لأن ليها أولوية
+                            أعلى. لو عاوزين نغير الأولوية دي، لازم نحط شروط الـ OR بين أقواس <code>()</code>.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">6. ترتيب البيانات (ORDER BY Clause):</h3>
+                        <p>بعد ما نفلتر البيانات، بنرتب شكل عرضها باستخدام جملة <code>ORDER BY</code>، ودي دايماً لازم
+                            تكون آخر سطر في كود الـ SELECT. الترتيب الافتراضي بيكون تصاعدي <code>(ASC)</code>، ولو
+                            عاوزين تنازلي بنكتب <code>(DESC)</code>. وتقدر ترتب بأكتر من عمود في نفس الوقت.</p>
+                    </div>
+
+                    <!-- Les02 Examples -->
+                    <div class="mt-6 bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-4"><i
+                                class="fas fa-laptop-code text-indigo-500 ml-2"></i> أمثلة عملية محلولة:</h3>
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الأول: الفلترة بالنصوص والترتيب (ORDER BY)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض أسماء
+                                وتواريخ تعيين الموظفين اللي اسمهم الأخير 'Whalen' ورتبهم تنازلياً حسب تاريخ التعيين.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name, hire_date
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">WHERE</span> last_name = <span class="sql-string">'Whalen'</span>
+<span class="sql-keyword">ORDER BY</span> hire_date <span class="sql-keyword">DESC</span>;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا <code>WHERE</code>
+                                لفلترة النتيجة، ولازم نحط النص بين علامتين تنصيص مفردة <code>' '</code> لأنه بيكون حساس
+                                لحالة الأحرف (Case-sensitive). وفي النهاية استخدمنا <code>ORDER BY</code> عشان نرتب
+                                البيانات، وكلمة <code>DESC</code> بتخلي الترتيب تنازلي.</p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثاني: البحث في نطاق (BETWEEN) أو قائمة (IN)
+                            </h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض
+                                الموظفين اللي رواتبهم تتراوح بين 2500 و 3500، أو أن رقم مديرهم هو (100، أو 101، أو 201).
+                            </p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name, salary, manager_id
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">WHERE</span> salary <span class="sql-keyword">BETWEEN</span> <span class="sql-number">2500</span> <span class="sql-keyword">AND</span> <span class="sql-number">3500</span>
+<span class="sql-keyword">OR</span> manager_id <span class="sql-keyword">IN</span> (<span class="sql-number">100</span>, <span class="sql-number">101</span>, <span class="sql-number">201</span>);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> معامل <code>BETWEEN</code>
+                                بيجيب القيم اللي بين رقمين (والرقمين نفسهم بيكونوا مشمولين في النتيجة). أما معامل
+                                <code>IN</code> فبنستخدمه عشان نختبر لو القيمة موجودة جوه قائمة محددة بين قوسين، وده
+                                بيوفر علينا كتابة شروط <code>OR</code> كتير.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثالث: البحث بالأنماط (LIKE) والقيم الفارغة (IS
+                                NULL)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض أسماء
+                                الموظفين اللي اسمهم الأول يبدأ بحرف 'S' وليس لهم مدير (خانة المدير فارغة).</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> first_name, manager_id
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">WHERE</span> first_name <span class="sql-keyword">LIKE</span> <span class="sql-string">'S%'</span>
+<span class="sql-keyword">AND</span> manager_id <span class="sql-keyword">IS NULL</span>;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا <code>LIKE</code> مع
+                                علامة النسبة المئوية <code>%</code> اللي بتعني "أي عدد من الحروف" عشان نجيب أي اسم بيبدأ
+                                بحرف S. وعشان ندور على الخانات الفاضية لازم نستخدم <code>IS NULL</code> لأن علامة
+                                <code>=</code> العادية مش بتشتغل مع الـ Null. وربطناهم بـ <code>AND</code> عشان لازم
+                                الشرطين يتحققوا مع بعض.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-2">
+                            <h4 class="font-bold text-slate-800">المثال الرابع: التحكم في أولويات التنفيذ (Precedence)
+                            </h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض
+                                الموظفين اللي شغالين بوظيفة 'SA_REP' أو 'AD_PRES'، بشرط إن راتبهم في كلتا الحالتين يكون
+                                أكبر من 15000.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name, job_id, salary
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">WHERE</span> (job_id = <span class="sql-string">'SA_REP'</span> <span class="sql-keyword">OR</span> job_id = <span class="sql-string">'AD_PRES'</span>)
+<span class="sql-keyword">AND</span> salary > <span class="sql-number">15000</span>;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> قاعدة البيانات بتنفذ دايماً
+                                شرط الـ <code>AND</code> قبل الـ <code>OR</code>. وعشان كده حطينا شروط الـ
+                                <code>OR</code> بين أقواس <code>()</code> عشان نجبر قاعدة البيانات تنفذها هي الأول وتجيب
+                                الوظيفتين دول، وبعدين تطبق شرط الراتب (أكبر من 15000) عليهم هم الاتنين.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Les03 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-3"><i
+                        class="fas fa-magic text-blue-500 ml-2"></i> سكشن 3 (Les03): دوال الصف الواحد (Single-Row
+                    Functions)</h2>
+                <div class="text-slate-700 leading-relaxed space-y-5">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">1. دوال النصوص (Character Functions):</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">تغيير حالة الحروف:</strong> دالة <code>UPPER</code>
+                                (كابيتال)، <code>LOWER</code> (سمول)، و <code>INITCAP</code> (أول حرف كابيتال).</li>
+                            <li><strong class="text-blue-700">للتعديل على النص:</strong> <code>LENGTH</code> (عدد
+                                الحروف)، <code>CONCAT</code> (دمج)، <code>SUBSTR</code> (قص جزء)، <code>INSTR</code>
+                                (البحث عن حرف وتحديد ترتيبه).</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">2. دوال الأرقام (Number Functions):</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">ROUND:</strong> لتقريب الرقم العشري.</li>
+                            <li><strong class="text-blue-700">TRUNC:</strong> لقص الأرقام العشرية من غير تقريب.</li>
+                            <li><strong class="text-blue-700">MOD:</strong> تجيب باقي القسمة.</li>
+                            <li><em>ملاحظة: جدول <code>DUAL</code> هو جدول وهمي بنستخدمه عشان نجرب عليه الدوال دي.</em>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">3. دوال التواريخ (Date Functions):</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">SYSDATE:</strong> بتجيب تاريخ ووقت اللحظة الحالية من
+                                السيرفر.</li>
+                            <li>تقدر تجمع أو تطرح أيام من التاريخ عادي.</li>
+                            <li><strong class="text-blue-700">MONTHS_BETWEEN:</strong> بتحسب الشهور بين تاريخين.</li>
+                            <li><strong class="text-blue-700">ADD_MONTHS:</strong> بتزود شهور.</li>
+                            <li><strong class="text-blue-700">LAST_DAY:</strong> تاريخ آخر يوم في الشهر.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">4. دوال التحويل (Conversion Functions):</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">TO_CHAR:</strong> تحول الرقم أو التاريخ لـ "نص" بتنسيق
+                                معين (مثل إظهار اسم الشهر بدل رقمه).</li>
+                            <li><strong class="text-blue-700">TO_NUMBER</strong> و <strong
+                                    class="text-blue-700">TO_DATE:</strong> العكس، يحولوا النص لرقم أو تاريخ.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">5. دوال القيم الفارغة (Null Functions):</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">NVL:</strong> بتبدل الخانة الفاضية بأي رقم أو نص تختاره.
+                            </li>
+                            <li><strong class="text-blue-700">COALESCE:</strong> بتديها أكتر من اختيار، وترجع أول اختيار
+                                مش فاضي.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">6. الشروط (Conditional Expressions):</h3>
+                        <p>تخلينا نكتب قاعدة (IF-THEN-ELSE) جوه كود الـ SELECT بطريقتين: <code>CASE</code> أو
+                            <code>DECODE</code>.
+                        </p>
+                    </div>
+
+                    <!-- Les03 Examples -->
+                    <div class="mt-6 bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-4"><i
+                                class="fas fa-laptop-code text-indigo-500 ml-2"></i> أمثلة عملية محلولة:</h3>
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الأول: التعامل مع النصوص (Character Functions)
+                            </h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض رقم
+                                الموظف، واسمه بالكامل (دمج الاسم الأول والأخير)، وطول اسمه الأخير، ومكان حرف 'a' في اسمه
+                                الأخير.. وذلك للموظفين اللي كود وظيفتهم بينتهي بكلمة 'REP'.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> employee_id, CONCAT(first_name, last_name) <span class="sql-keyword">AS</span> NAME, 
+       LENGTH(last_name), INSTR(last_name, <span class="sql-string">'a'</span>) <span class="sql-keyword">AS</span> <span class="sql-string">"Contains 'a'?"</span>
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">WHERE</span> SUBSTR(job_id, <span class="sql-number">4</span>) = <span class="sql-string">'REP'</span>;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا <code>CONCAT</code>
+                                عشان نلزق الاسم الأول في الأخير. و <code>LENGTH</code> لعد الحروف. و <code>INSTR</code>
+                                للبحث عن ترتيب حرف الـ 'a'. وفي الشرط <code>WHERE</code> استخدمنا <code>SUBSTR</code>
+                                لقص أول 3 حروف من كود الوظيفة ومقارنة الباقي.</p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثاني: دوال التحويل (Conversion Functions)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض اسم
+                                الموظف وتاريخ تعيينه، بس بشرط إن تاريخ التعيين يظهر كنص مكتوب بالشكل ده: (مثلاً: 17 June
+                                1987) وامنع المسافات الزايدة.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name, TO_CHAR(hire_date, <span class="sql-string">'fm DD Month YYYY'</span>) <span class="sql-keyword">AS</span> HIREDATE
+<span class="sql-keyword">FROM</span> employees;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا دالة
+                                <code>TO_CHAR</code> لتحويل التاريخ لنص. التنسيق <code>DD</code> لليوم، و
+                                <code>Month</code> لاسم الشهر بالكامل، و <code>YYYY</code> للسنة. وحرفين <code>fm</code>
+                                بيمسحوا أي مسافات فاضية زايدة أو أصفار على الشمال.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثالث: التعامل مع القيم الفارغة (Null
+                                Functions)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> احسب الراتب
+                                السنوي للموظفين شامل العمولة. (ملحوظة: بعض الموظفين ليس لهم عمولة وقيمتها Null).</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name, salary, NVL(commission_pct, <span class="sql-number">0</span>),
+       (salary * <span class="sql-number">12</span>) + (salary * <span class="sql-number">12</span> * NVL(commission_pct, <span class="sql-number">0</span>)) <span class="sql-keyword">AS</span> AN_SAL
+<span class="sql-keyword">FROM</span> employees;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> لو ضربنا الراتب في عمولة
+                                (Null)، النتيجة هتبوظ وتطلع Null. عشان كده استخدمنا دالة
+                                <code>NVL(commission_pct, 0)</code>، ودي معناها: "لو لقيت العمولة Null اعتبرها زيرو
+                                مؤقتاً عشان العملية الحسابية تكمل صح".
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-2">
+                            <h4 class="font-bold text-slate-800">المثال الرابع: الشروط (Conditional Expressions)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض أسماء
+                                الموظفين ووظائفهم ورواتبهم الجديدة بناءً على زيادة 10% لوظيفة 'IT_PROG'، و 15% لـ
+                                'ST_CLERK'، و 20% لـ 'SA_REP'.. وأي وظيفة أخرى يبقى راتبها كما هو.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name, job_id, salary,
+       CASE job_id WHEN <span class="sql-string">'IT_PROG'</span>  THEN <span class="sql-number">1.10</span> * salary
+                   WHEN <span class="sql-string">'ST_CLERK'</span> THEN <span class="sql-number">1.15</span> * salary
+                   WHEN <span class="sql-string">'SA_REP'</span>   THEN <span class="sql-number">1.20</span> * salary
+                   ELSE salary 
+       END <span class="sql-keyword">AS</span> <span class="sql-string">"REVISED_SALARY"</span>
+<span class="sql-keyword">FROM</span> employees;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا <code>CASE</code>
+                                لعمل حالة (IF-THEN-ELSE). <code>WHEN</code> (لما تكون الوظيفة كذا) <code>THEN</code>
+                                (اضرب الراتب في كذا). واستخدمنا <code>ELSE salary</code> للوظائف التانية، ولازم نقفل بـ
+                                <code>END</code>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Les04 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-3"><i
+                        class="fas fa-layer-group text-blue-500 ml-2"></i> سكشن 4 (Les04): دوال التجميع (Group
+                    Functions)</h2>
+                <div class="text-slate-700 leading-relaxed space-y-5">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">1. أنواع دوال التجميع الأساسية:</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">SUM و AVG:</strong> بنستخدمهم حصرياً مع البيانات الرقمية.
+                            </li>
+                            <li><strong class="text-blue-700">MAX و MIN:</strong> مع الأرقام، النصوص، والتواريخ.</li>
+                            <li><strong class="text-blue-700">COUNT:</strong> لعد الصفوف.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">2. التعامل مع القيم الفارغة (Nulls):</h3>
+                        <p>قاعدة ذهبية: كل دوال التجميع بتتجاهل الخانات الفاضية تماماً. لو عاوز القاعدة تعتبرها بصفر،
+                            لازم تستخدم <code>NVL</code> جوه دالة التجميع، بالشكل ده:
+                            <code>AVG(NVL(commission_pct, 0))</code>.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">3. تقسيم البيانات لمجموعات (GROUP BY):</h3>
+                        <p>لو عاوزين نحسب حاجة لكل فئة (زي متوسط راتب لكل قسم)، بنستخدم جملة <code>GROUP BY</code>.
+                            <strong>قاعدة صارمة جداً:</strong> أي عمود هتكتبه بعد SELECT ومش محطوط جوه دالة تجميع،
+                            <strong>لازم</strong> تكتبه بعد جملة GROUP BY وإلا سيحدث خطأ.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">4. فلترة المجموعات (HAVING):</h3>
+                        <p>ممنوع تماماً تستخدم دوال التجميع جوه جملة WHERE. البديل دايماً هو <code>HAVING</code> التي
+                            تعمل على فلترة "المجموعات" الناتجة عن GROUP BY.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">5. تداخل الدوال (Nesting):</h3>
+                        <p>تقدر تحط دالتين تجميع جوه بعض، زي إنك تطلب "أكبر" متوسط رواتب باستخدام
+                            <code>MAX(AVG(salary))</code>.
+                        </p>
+                    </div>
+
+                    <!-- Les04 Examples -->
+                    <div class="mt-6 bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-4"><i
+                                class="fas fa-laptop-code text-indigo-500 ml-2"></i> أمثلة عملية محلولة:</h3>
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الأول: التقسيم لمجموعات (GROUP BY)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض رقم كل
+                                قسم ومتوسط الرواتب للموظفين اللي شغالين فيه.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> department_id, AVG(salary)
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">GROUP BY</span> department_id;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> دالة <code>AVG</code> بتحسب
+                                المتوسط. وعشان نجيبه "لكل قسم"، قسمنا الموظفين باستخدام
+                                <code>GROUP BY department_id</code>. القاعدة الثابتة: أي عمود معروض بره دالة التجميع
+                                لازم ينزل يتكتب بعد <code>GROUP BY</code>.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثاني: فلترة المجموعات (HAVING)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض أرقام
+                                الأقسام التي يكون "أعلى راتب" فيها أكبر من 10,000.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> department_id, MAX(salary)
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">GROUP BY</span> department_id
+<span class="sql-keyword">HAVING</span> MAX(salary) > <span class="sql-number">10000</span>;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا <code>MAX</code>
+                                لنجيب أعلى راتب. ولما بنحب نحط شرط على دالة تجميع ونفلتر مجموعات، ممنوع نستخدم
+                                <code>WHERE</code>، والبديل هو شرط <code>HAVING</code> بعد التقسيم.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-2">
+                            <h4 class="font-bold text-slate-800">المثال الثالث: تداخل دوال التجميع (Nesting Group
+                                Functions)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض "أكبر"
+                                متوسط رواتب موجود بين جميع الأقسام.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> MAX(AVG(salary))
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">GROUP BY</span> department_id;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> حطينا دالتين جوه بعض. هتحسب
+                                الأول متوسط الراتب لكل قسم بـ <code>AVG</code>، وبعدين الدالة الخارجية <code>MAX</code>
+                                هتختار وتعرض أكبر متوسط فيهم بس.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Les06 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-3"><i
+                        class="fas fa-link text-blue-500 ml-2"></i> سكشن 6 (Les06): ربط الجداول (Joins)</h2>
+                <div class="text-slate-700 leading-relaxed space-y-5">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">1. الأسماء المستعارة للجداول (Table Aliases):
+                        </h3>
+                        <p>عشان نسهل الكود، بندي الجدول "دلع" أو اختصار (مثل <code>employees e</code>). ده بيسرع الأداء
+                            وبيمنع اللخبطة لو الجدولين فيهم عمود مشترك بنفس الاسم.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">2. الربط الطبيعي (NATURAL JOIN):</h3>
+                        <p>دي أسهل طريقة، قاعدة البيانات بتدور لوحدها على الأعمدة اللي ليها نفس الاسم ونفس نوع البيانات
+                            في الجدولين وتربطهم تلقائياً.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">3. الربط باستخدام (USING Clause):</h3>
+                        <p>لو الجدولين فيهم أكتر من عمود بنفس الاسم، بنستخدم <code>JOIN ... USING (column)</code>.
+                            <strong>ممنوع تماماً</strong> تحط اسم مستعار للجدول قبل اسم العمود اللي جوه قوسين الـ USING.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">4. الربط باستخدام (ON Clause):</h3>
+                        <p>دي الطريقة الأكتر مرونة وتتيح كتابة الشرط يدوياً:
+                            <code>ON (e.department_id = d.department_id)</code>. ومناسبة جداً لربط أكثر من جدولين
+                            متتالين.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">5. الربط الذاتي (Self-Join):</h3>
+                        <p>نربط الجدول بنفسه! زي إننا نجيب "اسم الموظف" وجنبه "اسم مديره"، نعتبر أن هناك نسختين وهميتين
+                            (worker و manager) ونربط بينهم.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">6. الربط بغير التساوي (Nonequijoins):</h3>
+                        <p>أحياناً بنربط باستخدام شروط تانية زي <code>BETWEEN</code>، مثل ربط الموظف بجدول درجات الرواتب
+                            لمعرفة درجته.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">7. الربط الخارجي (OUTER Joins):</h3>
+                        <p>الربط العادي (Inner) بيجيب بس المطابق. أما الخارجي:</p>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">LEFT OUTER JOIN:</strong> يعرض كل بيانات الجدول الأيسر حتى
+                                لو ليس لها مقابل.</li>
+                            <li><strong class="text-blue-700">RIGHT OUTER JOIN:</strong> يعرض كل بيانات الجدول الأيمن.
+                            </li>
+                            <li><strong class="text-blue-700">FULL OUTER JOIN:</strong> يعرض كل البيانات من الجدولين.
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">8. الضرب الديكارتي (CROSS JOIN):</h3>
+                        <p>يحدث لو نسيت شرط الربط، فيتم ضرب كل صف من الجدول الأول في كل صف من الجدول الثاني (النتيجة
+                            كارثية وغير منطقية).</p>
+                    </div>
+
+                    <!-- Les06 Examples -->
+                    <div class="mt-6 bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-4"><i
+                                class="fas fa-laptop-code text-indigo-500 ml-2"></i> أمثلة عملية محلولة:</h3>
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الأول: الربط العادي باستخدام (ON Clause)
+                                والأسماء المستعارة</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض اسم
+                                الموظف الأخير، ورقم قسمه، واسم القسم اللي شغال فيه.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> e.last_name, e.department_id, d.department_name
+<span class="sql-keyword">FROM</span> employees e <span class="sql-keyword">JOIN</span> departments d
+<span class="sql-keyword">ON</span> (e.department_id = d.department_id);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا <code>JOIN</code>
+                                عشان نربطهم. عطينا الجداول أسماء مستعارة <code>e</code> للموظفين و <code>d</code>
+                                للأقسام عشان نسهل الكود. وبعدين حددنا شرط الربط جوه <code>ON</code>.</p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثاني: الربط الذاتي (Self-Join)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض اسم
+                                الموظف (وسميه emp) وجنبه اسم مديره (وسميه mgr).</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> worker.last_name emp, manager.last_name mgr
+<span class="sql-keyword">FROM</span> employees worker <span class="sql-keyword">JOIN</span> employees manager
+<span class="sql-keyword">ON</span> (worker.manager_id = manager.employee_id);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> إحنا بنربط جدول الموظفين
+                                بنفسه! تخيلنا إن عندنا نسختين من الجدول؛ واحدة للعمال <code>worker</code> والتانية
+                                للمديرين <code>manager</code>. وربطنا بـ "رقم مدير" العامل يساوي "رقم الموظف" للمدير.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثالث: الربط بغير التساوي (Nonequijoin)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض اسم
+                                الموظف، راتبه، ومستوى درجته الوظيفية (Grade Level) بناءً على راتبه.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> e.last_name, e.salary, j.grade_level
+<span class="sql-keyword">FROM</span> employees e <span class="sql-keyword">JOIN</span> job_grades j
+<span class="sql-keyword">ON</span> e.salary <span class="sql-keyword">BETWEEN</span> j.lowest_sal <span class="sql-keyword">AND</span> j.highest_sal;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> بنربط جدول الموظفين بجدول
+                                الدرجات باستخدام <code>BETWEEN</code>، عشان نشوف راتب الموظف بيقع بين أي حد أدنى وأقصى
+                                للرواتب في جدول الدرجات.</p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-2">
+                            <h4 class="font-bold text-slate-800">المثال الرابع: الربط الخارجي (OUTER JOIN)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض أسماء
+                                كل الموظفين وأقسامهم، وحتى الموظفين الجداد اللي لسه ماتحددلهمش قسم (زي الموظف Grant)
+                                خليهم يظهروا برضه.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> e.last_name, e.department_id, d.department_name
+<span class="sql-keyword">FROM</span> employees e <span class="sql-keyword">LEFT OUTER JOIN</span> departments d
+<span class="sql-keyword">ON</span> (e.department_id = d.department_id);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> <code>LEFT OUTER JOIN</code>
+                                بيجبر قاعدة البيانات إنها تعرض <strong>كل</strong> الصفوف اللي في الجدول اللي على الشمال
+                                (الموظفين <code>e</code>)، حتى لو مفيش بيانات تقابلهم في الجدول اللي على اليمين.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Les07 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-3"><i
+                        class="fas fa-boxes text-blue-500 ml-2"></i> سكشن 7 (Les07): الاستعلامات الفرعية (Subqueries)
+                </h2>
+                <div class="text-slate-700 leading-relaxed space-y-5">
+                    <div>
+                        <p class="mb-3">عبارة عن كتابة استعلامين جوه بعض؛ استعلام داخلي (فرعي) يشتغل الأول ليحسب قيمة،
+                            ثم يبعت النتيجة للاستعلام الخارجي الأساسي للمقارنة.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">1. قواعد الكتابة:</h3>
+                        <p>لازم تحط كود الاستعلام الفرعي بين أقواس <code>()</code>. والأفضل يكون الاستعلام الفرعي على
+                            يمين علامة المقارنة.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">2. أنواع الاستعلامات الفرعية:</h3>
+                        <ul
+                            class="list-disc list-inside mt-2 pr-4 space-y-1 text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <li><strong class="text-blue-700">استعلامات الصف الواحد (Single-Row):</strong> بترجع نتيجة
+                                واحدة بس. بنستخدم معاها علامات المقارنة العادية <code>=, >, <</code>. لو استخدمت
+                                <code>=</code> مع استعلام بيرجع أكتر من صف، هيحدث خطأ.
+                            </li>
+                            <li><strong class="text-blue-700">استعلامات متعددة الصفوف (Multiple-Row):</strong> بترجع
+                                قائمة قيم. بنستخدم معاها <code>IN</code> (اختبار التواجد)، <code>ANY</code> (مقارنة بأي
+                                قيمة)، <code>ALL</code> (مقارنة بكل القيم).</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">3. التعامل مع القيم الفارغة:</h3>
+                        <p>لو كنت بتستخدم معامل <code>NOT IN</code> مع استعلام فرعي رجّع قيمة Null ضمن مخرجاته،
+                            الاستعلام الأساسي هيفشل ومش هيرجع أي بيانات خالص.</p>
+                    </div>
+
+                    <!-- Les07 Examples -->
+                    <div class="mt-6 bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-4"><i
+                                class="fas fa-laptop-code text-indigo-500 ml-2"></i> أمثلة عملية محلولة:</h3>
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الأول: استعلام الصف الواحد (Single-Row Subquery)
+                            </h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض أسماء
+                                الموظفين ورواتبهم، بس بشرط يكون راتبهم أكبر من راتب الموظف اللي اسمه 'Abel'.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> last_name, salary
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">WHERE</span> salary > 
+      (<span class="sql-keyword">SELECT</span> salary 
+       <span class="sql-keyword">FROM</span> employees 
+       <span class="sql-keyword">WHERE</span> last_name = <span class="sql-string">'Abel'</span>);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> عملنا استعلام فرعي يشتغل
+                                الأول ويجيب راتب Abel. الاستعلام الأساسي بياخد الرقم ده ويجيب كل اللي رواتبهم أكبر منه.
+                                واستخدمنا علامة أكبر من <code>></code> العادية بتاعت استعلامات الصف الواحد.</p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثاني: استخدام دوال التجميع و HAVING في
+                                الاستعلام الفرعي</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض رقم
+                                القسم وأقل راتب فيه، بس للأقسام اللي "أقل راتب فيها" يكون أكبر من "أقل راتب في القسم رقم
+                                50".</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> department_id, MIN(salary)
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">GROUP BY</span> department_id
+<span class="sql-keyword">HAVING</span> MIN(salary) > 
+       (<span class="sql-keyword">SELECT</span> MIN(salary)
+        <span class="sql-keyword">FROM</span> employees
+        <span class="sql-keyword">WHERE</span> department_id = <span class="sql-number">50</span>);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> الاستعلام الداخلي بيحسب أقل
+                                راتب في القسم 50. الاستعلام الخارجي بيقسم الموظفين بـ <code>GROUP BY</code>، وبيفلتر
+                                المجموعات بـ <code>HAVING</code> للمقارنة بالرقم الناتج.</p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثالث: الاستعلامات متعددة الصفوف (Multiple-Row
+                                Subqueries) مع ANY</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اعرض أسماء
+                                الموظفين ورواتبهم اللي رواتبهم "أقل من" راتب "أي" موظف شغال بوظيفة 'IT_PROG' (واستبعد
+                                موظفين الـ IT نفسهم من النتيجة).</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> employee_id, last_name, job_id, salary
+<span class="sql-keyword">FROM</span> employees
+<span class="sql-keyword">WHERE</span> salary < <span class="sql-keyword">ANY</span> 
+      (<span class="sql-keyword">SELECT</span> salary
+       <span class="sql-keyword">FROM</span> employees
+       <span class="sql-keyword">WHERE</span> job_id = <span class="sql-string">'IT_PROG'</span>)
+<span class="sql-keyword">AND</span> job_id <> <span class="sql-string">'IT_PROG'</span>;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> الاستعلام الفرعي هيرجع "قائمة
+                                أرقام". استخدمنا <code>&lt; ANY</code>، ودي معناها إن الراتب لازم يكون أصغر من أكبر رقم
+                                في القائمة دي.</p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-2">
+                            <h4 class="font-bold text-slate-800">المثال الرابع: فخ القيم الفارغة (Null Values)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> حاول تعرض
+                                الموظفين اللي "مش مديرين" لأي حد، باستخدام <code>NOT IN</code>.</p>
+                            <div class="mt-2"><strong class="text-rose-700 block mb-1">الحل (اللي بيطلع نتيجة
+                                    فاضية):</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">SELECT</span> emp.last_name
+<span class="sql-keyword">FROM</span> employees emp
+<span class="sql-keyword">WHERE</span> emp.employee_id <span class="sql-keyword">NOT IN</span> 
+      (<span class="sql-keyword">SELECT</span> mgr.manager_id
+       <span class="sql-keyword">FROM</span> employees mgr);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> الكود ده مش هيرجع أي بيانات
+                                خالص (0 rows selected). لأن الاستعلام الفرعي بيرجع قائمة أرقام المديرين ومن ضمنها
+                                <code>Null</code>. ومعامل <code>NOT IN</code> لو لقى قيمة Null واحدة جوه القائمة، بيفشل
+                                في المقارنة ومش بيرجع أي نتائج.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Les09 -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-3"><i
+                        class="fas fa-edit text-blue-500 ml-2"></i> سكشن 9 (Les09): تعديل البيانات (DML)</h2>
+                <div class="text-slate-700 leading-relaxed space-y-5">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">1. إضافة بيانات جديدة (INSERT):</h3>
+                        <p>بنستخدم <code>INSERT INTO table_name VALUES(...)</code>. لو عاوز تنسخ بيانات، تقدر تحط
+                            استعلام <code>SELECT</code> تحت الـ INSERT بدل الـ VALUES.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">2. تعديل البيانات (UPDATE):</h3>
+                        <p>بنستخدم <code>UPDATE table_name SET ... WHERE ...</code>. <strong>تحذير:</strong> لو نسيت
+                            تكتب WHERE، التعديل هيتطبق على كل الصفوف في الجدول!</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">3. حذف البيانات (DELETE):</h3>
+                        <p>بنكتب <code>DELETE FROM table_name WHERE ...</code>. وأيضاً لو نسيت WHERE كل البيانات ستُمسح.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">4. الحذف الكلي السريع (TRUNCATE):</h3>
+                        <p>بيمسح كل بيانات الجدول فوراً <code>TRUNCATE TABLE</code>. وهو من أوامر (DDL) أي لا يمكن
+                            التراجع عنه أبداً.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">5. التحكم في العمليات (TCL):</h3>
+                        <ul class="list-disc list-inside pr-4 space-y-1">
+                            <li><strong class="text-blue-700">COMMIT:</strong> حفظ وتأكيد التعديلات بشكل نهائي.</li>
+                            <li><strong class="text-blue-700">ROLLBACK:</strong> تراجع وإلغاء التعديلات غير المحفوظة.
+                            </li>
+                            <li><strong class="text-blue-700">SAVEPOINT:</strong> نقطة حفظ للتراجع إليها بدلاً من إلغاء
+                                كل العمل.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">6. تناسق القراءة (Read Consistency):</h3>
+                        <p>تضمن أوراكل أن القُراء للبيانات يرون النسخة القديمة حتى يقوم المُعدل بعمل COMMIT لضمان عدم
+                            حدوث تضارب.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-1">7. قفل الصفوف (FOR UPDATE):</h3>
+                        <p>لو عاوز تقرأ وتمنع حد يعدل البيانات لحد ما تخلص شغل عليها، بتكتب <code>FOR UPDATE</code> في
+                            نهاية الـ SELECT لعمل Lock (قفل) للصفوف المحددة.</p>
+                    </div>
+
+                    <!-- Les09 Examples -->
+                    <div class="mt-6 bg-indigo-50 p-5 rounded-lg border border-indigo-100">
+                        <h3 class="font-bold text-lg text-indigo-900 mb-4"><i
+                                class="fas fa-laptop-code text-indigo-500 ml-2"></i> أمثلة عملية محلولة:</h3>
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الأول: إضافة بيانات مع استخدام دالة الوقت
+                                (INSERT)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اكتب أمراً
+                                لإضافة موظف جديد، واجعل تاريخ تعيينه هو تاريخ اليوم تلقائياً.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">INSERT INTO</span> employees (employee_id, last_name, email, hire_date, job_id, salary)
+<span class="sql-keyword">VALUES</span> (<span class="sql-number">114</span>, <span class="sql-string">'Raphealy'</span>, <span class="sql-string">'DRAPHEAL'</span>, SYSDATE, <span class="sql-string">'SA_REP'</span>, <span class="sql-number">11000</span>);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا
+                                <code>INSERT INTO</code> لتحديد الجدول. وفي القيم (<code>VALUES</code>)، استخدمنا دالة
+                                <code>SYSDATE</code> عشان قاعدة البيانات تسجل تاريخ اللحظة دي تلقائياً.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثاني: التحديث بناءً على بيانات موظف آخر
+                                (UPDATE with Subquery)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> اكتب أمراً
+                                لتحديث وظيفة وراتب الموظف رقم 113 ليكونوا نفس وظيفة وراتب الموظف رقم 205.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">UPDATE</span> employees
+<span class="sql-keyword">SET</span> job_id = (<span class="sql-keyword">SELECT</span> job_id <span class="sql-keyword">FROM</span> employees <span class="sql-keyword">WHERE</span> employee_id = <span class="sql-number">205</span>),
+    salary = (<span class="sql-keyword">SELECT</span> salary <span class="sql-keyword">FROM</span> employees <span class="sql-keyword">WHERE</span> employee_id = <span class="sql-number">205</span>)
+<span class="sql-keyword">WHERE</span> employee_id = <span class="sql-number">113</span>;</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> استخدمنا أمر
+                                <code>UPDATE</code> مع <code>SET</code>. وبدل القيم الثابتة، استخدمنا استعلام فرعي يجيب
+                                بيانات الموظف 205 ويحطها للموظف 113 بشكل ديناميكي.
+                            </p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-800">المثال الثالث: الحذف باستخدام استعلام فرعي (DELETE with
+                                Subquery)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> احذف جميع
+                                الموظفين الذين يعملون في قسم يحتوي اسمه على كلمة 'Public'.</p>
+                            <div class="mt-2"><strong class="text-emerald-700 block mb-1">الحل:</strong>
+                                <pre class="bg-slate-800 text-slate-50 p-3 rounded-lg text-sm text-left font-mono"
+                                    dir="ltr"><code><span class="sql-keyword">DELETE FROM</span> employees
+<span class="sql-keyword">WHERE</span> department_id = 
+      (<span class="sql-keyword">SELECT</span> department_id 
+       <span class="sql-keyword">FROM</span> departments 
+       <span class="sql-keyword">WHERE</span> department_name <span class="sql-keyword">LIKE</span> <span class="sql-string">'%Public%'</span>);</code></pre>
+                            </div>
+                            <p class="text-slate-600 text-sm mt-2"><strong>الشرح:</strong> بدل ما نكتب رقم القسم مباشرة،
+                                خلينا الاستعلام الفرعي يدور في جدول الأقسام على القسم اللي اسمه بيحتوي على 'Public'
+                                ويمسح الموظفين المرتبطين بيه.</p>
+                        </div>
+                        <hr class="border-indigo-200 my-4">
+
+                        <div class="mb-2">
+                            <h4 class="font-bold text-slate-800">المثال الرابع: الفرق الجوهري في الحذف السريع والتحكم
+                                (TRUNCATE vs DELETE)</h4>
+                            <p class="text-slate-700 mt-1"><strong class="text-indigo-700">السؤال:</strong> لو كتبنا
+                                <code>DELETE FROM copy_emp;</code> وكود آخر <code>TRUNCATE TABLE copy_emp;</code>، ما هو
+                                الفرق بينهما في استرجاع البيانات؟
+                            </p>
+                            <p class="text-slate-700 mt-2"><strong class="text-emerald-700">الحل بالشرح:</strong> <br>
+                                - أمر <code>DELETE</code> يمسح البيانات ولكن يمكن التراجع عنه واسترجاع البيانات الممسوحة
+                                باستخدام أمر <code>ROLLBACK</code>.<br>
+                                - أما أمر <code>TRUNCATE</code> فهو يحذف البيانات بالكامل ويفرغ مساحة الجدول فوراً، ولا
+                                يمكن التراجع عنه بسهولة لأنه يعتبر من أوامر البناء (DDL) التي تنفذ حفظ تلقائي
+                                (Auto-Commit).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- End of Lectures Section -->
+
+        <!-- MCQ Section (New) -->
+        <div id="mcqSection" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 class="text-2xl font-bold text-blue-900"><i class="fas fa-tasks text-blue-500 ml-2"></i> اختبر
+                        نفسك (MCQ)</h2>
+                    <div class="text-slate-600 font-bold bg-slate-100 px-4 py-2 rounded-lg" id="mcqProgress">سؤال 1 / 98
+                    </div>
+                </div>
+
+                <div id="mcqGameArea">
+                    <!-- Question and Options will be injected here -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Full Data from the provided Document (98 Questions)
+        const rawQuestions = [
+            { q: "Write a query to display employee names and department names for employees earning more than 6000.", a: "SELECT e.first_name, e.last_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE e.salary > 6000;", e: "استخدمنا (JOIN) لربط جدول الموظفين بجدول الأقسام، واستخدمنا (WHERE) لفلترة الرواتب." },
+            { q: "Write a query to display employees whose salary is higher than the average salary of department 50.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT AVG(salary) FROM employees WHERE department_id = 50);", e: "استخدمنا استعلام فرعي (Subquery) لحساب المتوسط أولاً، ثم قارناه براتب كل موظف." },
+            { q: "Write a statement to insert a new employee into department 60 under manager 103.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, manager_id) \nVALUES (207, 'NewEmp', 'NEMP', SYSDATE, 'IT_PROG', 60, 103);", e: "جملة إدخال (INSERT) لإضافة سجل جديد مع تحديد القسم والمدير المطلوبين." },
+            { q: "Write a statement to update salaries for employees in department 30 whose salaries are below department average.", a: "UPDATE employees \nSET salary = salary * 1.10 \nWHERE department_id = 30 \nAND salary < (SELECT AVG(salary) FROM employees WHERE department_id = 30);", e: "جملة تحديث (UPDATE) مع استعلام فرعي كشرط لاختيار من هم تحت المتوسط." },
+            { q: "Write a query to display employees working in the same department as employee ID 145.", a: "SELECT * \nFROM employees \nWHERE department_id = (SELECT department_id FROM employees WHERE employee_id = 145);", e: "استعلام فرعي يجلب رقم قسم الموظف 145، ثم يعرض جميع من في هذا القسم." },
+            { q: "Write a query to display employee names with their department names ordered by salary descending.", a: "SELECT e.first_name, d.department_name, e.salary \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nORDER BY e.salary DESC;", e: "ربط الجداول مع ترتيب النتائج تنازلياً باستخدام ORDER BY ... DESC." },
+            { q: "Write a query to display departments with average salaries greater than 7000.", a: "SELECT department_id, AVG(salary) \nFROM employees \nGROUP BY department_id \nHAVING AVG(salary) > 7000;", e: "استخدام GROUP BY لتجميع الأقسام، و HAVING لتطبيق شرط على الدوال التجميعية (AVG)." },
+            { q: "Write a statement to insert a new sales representative with commission percentage 0.15.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, commission_pct) \nVALUES (208, 'SalesRep', 'SREP', SYSDATE, 'SA_REP', 0.15);", e: "إدخال سجل جديد مع تخصيص قيمة صريحة لنسبة العمولة." },
+            { q: "Write a query to display employees whose salary is lower than employee ID 110.", a: "SELECT * \nFROM employees \nWHERE salary < (SELECT salary FROM employees WHERE employee_id = 110);", e: "استعلام فرعي (Subquery) يجلب راتب الموظف 110 للمقارنة." },
+            { q: "Write a query to display department names and total salaries using joins.", a: "SELECT d.department_name, SUM(e.salary) AS total_salary \nFROM departments d \nJOIN employees e ON d.department_id = e.department_id \nGROUP BY d.department_name;", e: "ربط الجداول ثم التجميع بناءً على اسم القسم وحساب المجموع بدالة SUM." },
+            { q: "Write a statement to update commission percentage for employees in department 80.", a: "UPDATE employees \nSET commission_pct = 0.20 \nWHERE department_id = 80;", e: "تحديث (UPDATE) مباشر لعمود نسبة العمولة بناءً على شرط القسم." },
+            { q: "Write a query to display employees earning the highest salary in department 60.", a: "SELECT * \nFROM employees \nWHERE department_id = 60 \nAND salary = (SELECT MAX(salary) FROM employees WHERE department_id = 60);", e: "استعلام فرعي يستخدم دالة MAX لإيجاد أعلى راتب في القسم المحدد." },
+            { q: "Write a query to display employees and cities using employees, departments, and locations tables.", a: "SELECT e.first_name, l.city \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id;", e: "ربط 3 جداول معاً متتالية باستخدام JOIN." },
+            { q: "Write a statement to insert an IT programmer into department 90.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (209, 'Prog', 'PROG90', SYSDATE, 'IT_PROG', 90);", e: "إدخال بيانات بناءً على الوظيفة المحددة والقسم المطلوب." },
+            { q: "Write a query to display job titles with average salaries greater than company average salary.", a: "SELECT job_id, AVG(salary) \nFROM employees \nGROUP BY job_id \nHAVING AVG(salary) > (SELECT AVG(salary) FROM employees);", e: "تجميع حسب الوظيفة، واستخدام استعلام فرعي داخل الـ HAVING لمقارنته بمتوسط الشركة." },
+            { q: "Write a query to display employees who have the same manager as employee ID 176.", a: "SELECT * \nFROM employees \nWHERE manager_id = (SELECT manager_id FROM employees WHERE employee_id = 176);", e: "استخراج رقم المدير للموظف 176، ثم جلب جميع من يتبعون نفس المدير." },
+            { q: "Write a statement to increase salaries for clerks by 5%.", a: "UPDATE employees \nSET salary = salary * 1.05 \nWHERE job_id LIKE '%CLERK%';", e: "تحديث الرواتب باستخدام المعامل LIKE لاستهداف جميع الموظفين الذين تحتوي وظيفتهم على كلمة CLERK." },
+            { q: "Write a query to display employees whose salaries are greater than all salaries in department 30.", a: "SELECT * \nFROM employees \nWHERE salary > ALL (SELECT salary FROM employees WHERE department_id = 30);", e: "استخدام المعامل ALL للمقارنة مع جميع القيم الناتجة من الاستعلام الفرعي (ويمكن استخدام MAX)." },
+            { q: "Write a query to display departments containing more than 5 employees.", a: "SELECT department_id, COUNT(*) \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) > 5;", e: "استخدام الدالة التجميعية COUNT وحصر النتائج عبر HAVING." },
+            { q: "Write a statement to insert an employee with null commission percentage.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, commission_pct) \nVALUES (210, 'NoComm', 'NCOMM', SYSDATE, 'SA_REP', NULL);", e: "إدخال صريح لقيمة NULL في عمود معين." },
+            { q: "Write a query to display employees hired before employee ID 120.", a: "SELECT * \nFROM employees \nWHERE hire_date < (SELECT hire_date FROM employees WHERE employee_id = 120);", e: "مقارنة التواريخ باستخدام استعلام فرعي (< تعني تاريخ أقدم/قبل)." },
+            { q: "Write a query to display department names and manager IDs for departments located in location ID 1700.", a: "SELECT department_name, manager_id \nFROM departments \nWHERE location_id = 1700;", e: "استعلام بسيط (Basic Select) على جدول الأقسام بفلتر مباشر." },
+            { q: "Write a statement to update salaries for employees hired before 2005.", a: "UPDATE employees \nSET salary = salary + 500 \nWHERE TO_CHAR(hire_date, 'YYYY') < '2005';", e: "تحديث يعتمد على استخراج سنة التعيين باستخدام دالة TO_CHAR أو EXTRACT." },
+            { q: "Write a query to display employees whose salary equals the minimum salary in the company.", a: "SELECT * \nFROM employees \nWHERE salary = (SELECT MIN(salary) FROM employees);", e: "استخدام دالة MIN في الاستعلام الفرعي للبحث عن أقل راتب." },
+            { q: "Write a query to display employee names and salaries for departments starting with letter S.", a: "SELECT e.first_name, e.salary, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.department_name LIKE 'S%';", e: "استخدام الربط ثم المعامل LIKE لفلترة النصوص التي تبدأ بحرف S." },
+            { q: "Write a statement to insert a manager employee into department 100.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (211, 'Manager', 'MGR', SYSDATE, 'FI_MGR', 100);", e: "عملية إدخال (Insert) قياسية." },
+            { q: "Write a query to display departments with total salaries greater than 40000.", a: "SELECT department_id, SUM(salary) \nFROM employees \nGROUP BY department_id \nHAVING SUM(salary) > 40000;", e: "تجميع حسب القسم واستخدام الدالة SUM للمقارنة داخل الـ HAVING." },
+            { q: "Write a statement to update employee job IDs in department 50.", a: "UPDATE employees \nSET job_id = 'ST_MAN' \nWHERE department_id = 50;", e: "تحديث حقل الوظيفة لجميع الموظفين في قسم معين." },
+            { q: "Write a query to display employees earning less than the average salary of their departments.", a: "SELECT e1.first_name, e1.salary, e1.department_id \nFROM employees e1 \nWHERE salary < (SELECT AVG(salary) FROM employees e2 WHERE e1.department_id = e2.department_id);", e: "استخدام (Correlated Subquery) حيث يعتمد الاستعلام الفرعي على قيمة من الاستعلام الخارجي." },
+            { q: "Write a query to display employee names and location IDs for employees in Toronto.", a: "SELECT e.first_name, d.location_id \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nWHERE l.city = 'Toronto';", e: "ربط جداول الموظفين، الأقسام، والمواقع ثم الفلترة حسب المدينة." },
+            { q: "Write a statement to insert a new employee with salary 8500.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, salary) \nVALUES (212, 'HighSal', 'HSAL', SYSDATE, 'IT_PROG', 8500);", e: "تحديد صريح لقيمة الراتب عند الإدخال." },
+            { q: "Write a query to display employees whose salaries are greater than employee ID 130.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT salary FROM employees WHERE employee_id = 130);", e: "مقارنة بسيطة مع استعلام فرعي يجلب راتب الموظف المحدد." },
+            { q: "Write a query to display departments with the highest average salary.", a: "SELECT department_id, AVG(salary) \nFROM employees \nGROUP BY department_id \nHAVING AVG(salary) = (SELECT MAX(AVG(salary)) FROM employees GROUP BY department_id);", e: "استخدام التجميع داخل الاستعلام الفرعي وإيجاد الـ MAX للمتوسطات." },
+            { q: "Write a statement to update commission percentages for sales representatives only.", a: "UPDATE employees \nSET commission_pct = 0.25 \nWHERE job_id = 'SA_REP';", e: "تحديث مع فلترة الوظيفة المعنية بالعمولات." },
+            { q: "Write a query to display employees working under manager ID 100.", a: "SELECT * \nFROM employees \nWHERE manager_id = 100;", e: "استعلام بسيط للمقارنة المباشرة." },
+            { q: "Write a query to display employee names and department names where salary is between 4000 and 9000.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE e.salary BETWEEN 4000 AND 9000;", e: "استخدام الربط، ثم معامل النطاق BETWEEN للرواتب." },
+            { q: "Write a statement to insert an employee into department 20 with no manager.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, manager_id) \nVALUES (213, 'NoMgr', 'NMGR', SYSDATE, 'MK_REP', 20, NULL);", e: "وضع القيمة صراحة كـ NULL لعمود المدير." },
+            { q: "Write a query to display employees whose salaries equal department average salaries.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary = (SELECT AVG(salary) FROM employees e2 WHERE e1.department_id = e2.department_id);", e: "الاستعلامات المرتبطة (Correlated) لمقارنة الراتب بمتوسط نفس القسم." },
+            { q: "Write a query to display job IDs with minimum salaries greater than 3000.", a: "SELECT job_id, MIN(salary) \nFROM employees \nGROUP BY job_id \nHAVING MIN(salary) > 3000;", e: "تجميع بالوظيفة، واستخدام HAVING لشرط على دالة القيمة الصغرى." },
+            { q: "Write a statement to update salaries for employees in department 90 by 8%.", a: "UPDATE employees \nSET salary = salary * 1.08 \nWHERE department_id = 90;", e: "عملية حسابية داخل أمر UPDATE لزيادة الراتب." },
+            { q: "Write a query to display employees hired after employee ID 115.", a: "SELECT * \nFROM employees \nWHERE hire_date > (SELECT hire_date FROM employees WHERE employee_id = 115);", e: "استعلام فرعي للمقارنة بين تواريخ التعيين (> تعني تاريخ أحدث/بعد)." },
+            { q: "Write a query to display departments with fewer employees than department 80.", a: "SELECT department_id, COUNT(*) \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) < (SELECT COUNT(*) FROM employees WHERE department_id = 80);", e: "الاستعلام الفرعي هنا يجلب عدد الموظفين في قسم معين ليتم المقارنة به في الـ HAVING." },
+            { q: "Write a statement to insert a clerk into department 50.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (214, 'ClerkEmp', 'CLEMP', SYSDATE, 'ST_CLERK', 50);", e: "إدخال بيانات قياسي." },
+            { q: "Write a query to display employees whose salary is greater than the highest salary in department 50.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT MAX(salary) FROM employees WHERE department_id = 50);", e: "يمكن استخدام استعلام بدالة MAX، أو استخدام المعامل > ALL." },
+            { q: "Write a query to display employee names and department names sorted alphabetically.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nORDER BY e.first_name ASC, d.department_name ASC;", e: "استخدام ORDER BY للترتيب الأبجدي التصاعدي (ASC)." },
+            { q: "Write a statement to update salaries for employees managed by manager ID 145.", a: "UPDATE employees \nSET salary = salary + 200 \nWHERE manager_id = 145;", e: "تحديث روتيني مبني على شرط المدير." },
+            { q: "Write a query to display employees who do not receive commission.", a: "SELECT * \nFROM employees \nWHERE commission_pct IS NULL;", e: "استخدام المعامل الخاص بالقيم الفارغة (IS NULL)." },
+            { q: "Write a query to display departments where maximum salary exceeds 12000.", a: "SELECT department_id, MAX(salary) \nFROM employees \nGROUP BY department_id \nHAVING MAX(salary) > 12000;", e: "استخدام GROUP BY مع HAVING ودالة MAX." },
+            { q: "Write a statement to insert a new employee into department 70.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (215, 'Dept70Emp', 'D70E', SYSDATE, 'PR_REP', 70);", e: "جملة إدخال بسيطة للقسم 70." },
+            { q: "Write a query to display employees whose salaries are below company average salary.", a: "SELECT * \nFROM employees \nWHERE salary < (SELECT AVG(salary) FROM employees);", e: "استعلام فرعي يجلب متوسط راتب الشركة ككل." },
+            { q: "Write a query to display employees and managers using self join.", a: "SELECT emp.first_name AS Employee, mgr.first_name AS Manager \nFROM employees emp \nJOIN employees mgr ON emp.manager_id = mgr.employee_id;", e: "استخدام الربط الذاتي (Self Join) بين الجدول ونفسه بمسميات مستعارة (Aliases) مختلفة." },
+            { q: "Write a statement to update salaries for employees whose job ID starts with ST.", a: "UPDATE employees \nSET salary = salary * 1.05 \nWHERE job_id LIKE 'ST%';", e: "استخدام المعامل LIKE في التحديث للمطابقة النصية." },
+            { q: "Write a query to display employees earning the second highest salary in the company.", a: "SELECT * \nFROM employees \nWHERE salary = (SELECT MAX(salary) FROM employees WHERE salary < (SELECT MAX(salary) FROM employees));", e: "طريقة الاستعلام الفرعي المتداخل لاستثناء أعلى راتب والبحث عن الأعلى بعده." },
+            { q: "Write a query to display department names with average commission percentages.", a: "SELECT d.department_name, AVG(e.commission_pct) \nFROM departments d \nJOIN employees e ON d.department_id = e.department_id \nGROUP BY d.department_name;", e: "ربط الجداول والتجميع حسب اسم القسم لاستخراج متوسط العمولات." },
+            { q: "Write a statement to insert a sales manager with commission percentage 0.25.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, commission_pct) \nVALUES (216, 'SalesMgr', 'SMGR', SYSDATE, 'SA_MAN', 0.25);", e: "إدخال بيانات لمدير المبيعات مع قيمة للعمولة." },
+            { q: "Write a query to display employees working in departments located in Seattle.", a: "SELECT e.* \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nWHERE l.city = 'Seattle';", e: "ربط 3 جداول معاً لتتبع المسار من الموظف إلى المدينة." },
+            { q: "Write a query to display employees whose salaries are equal to employee ID 117.", a: "SELECT * \nFROM employees \nWHERE salary = (SELECT salary FROM employees WHERE employee_id = 117);", e: "استعلام فرعي بسيط للمساواة." },
+            { q: "Write a statement to update job IDs for employees earning below 3500.", a: "UPDATE employees \nSET job_id = 'SH_CLERK' \nWHERE salary < 3500;", e: "تحديث قيمة نصية بناءً على شرط مالي." },
+            { q: "Write a query to display departments with more employees than department 60.", a: "SELECT department_id, COUNT(*) \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) > (SELECT COUNT(*) FROM employees WHERE department_id = 60);", e: "مقارنة الـ COUNT في الـ HAVING عبر استعلام فرعي." },
+            { q: "Write a query to display employee names and salaries ordered by hire date.", a: "SELECT first_name, salary, hire_date \nFROM employees \nORDER BY hire_date ASC;", e: "ترتيب قياسي للنتائج باستخدام ORDER BY." },
+            { q: "Write a statement to insert a programmer employee into department 60.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (217, 'Prog2', 'PRG2', SYSDATE, 'IT_PROG', 60);", e: "إدخال بيانات للمبرمج." },
+            { q: "Write a query to display employees whose salary is higher than department average salary.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary > (SELECT AVG(salary) FROM employees e2 WHERE e1.department_id = e2.department_id);", e: "استعلام مرتبط (Correlated) للمقارنة بمتوسط نفس القسم." },
+            { q: "Write a query to display job titles where average salary exceeds 8000.", a: "SELECT job_id, AVG(salary) \nFROM employees \nGROUP BY job_id \nHAVING AVG(salary) > 8000;", e: "تجميع بالوظيفة وتطبيق الشرط في HAVING." },
+            { q: "Write a statement to update salaries by 12% for IT programmers.", a: "UPDATE employees \nSET salary = salary * 1.12 \nWHERE job_id = 'IT_PROG';", e: "زيادة الراتب بنسبة مئوية محددة بناءً على الوظيفة." },
+            { q: "Write a query to display employees hired on the same date as employee ID 101.", a: "SELECT * \nFROM employees \nWHERE hire_date = (SELECT hire_date FROM employees WHERE employee_id = 101);", e: "مساواة التواريخ بناءً على استعلام فرعي." },
+            { q: "Write a query to display employees and department names for departments located in London.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nWHERE l.city = 'London';", e: "ربط الجداول حتى نصل لجدول المواقع وتحديد المدينة." },
+            { q: "Write a statement to insert an employee under manager ID 108.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, manager_id) \nVALUES (218, 'UnderMgr', 'UMGR', SYSDATE, 'FI_ACCOUNT', 108);", e: "إدخال مدير صريح عند إنشاء الموظف." },
+            { q: "Write a query to display employees earning more than all employees in department 100.", a: "SELECT * \nFROM employees \nWHERE salary > ALL (SELECT salary FROM employees WHERE department_id = 100);", e: "استخدام > ALL للمقارنة كأنها مقارنة بالحد الأقصى (MAX)." },
+            { q: "Write a query to display departments with total employees fewer than 4.", a: "SELECT department_id, COUNT(*) \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) < 4;", e: "إحصاء عدد الأقسام وإظهار من هم أقل من 4." },
+            { q: "Write a statement to update commission percentage for employees with salaries above 10000.", a: "UPDATE employees \nSET commission_pct = 0.30 \nWHERE salary > 10000;", e: "تحديث العمولات بناءً على قيمة الراتب العالية." },
+            { q: "Write a query to display employees whose salaries are below the minimum salary in department 90.", a: "SELECT * \nFROM employees \nWHERE salary < (SELECT MIN(salary) FROM employees WHERE department_id = 90);", e: "مقارنة أصغر من باستخدام دالة MIN داخل الاستعلام الفرعي." },
+            { q: "Write a query to display employee names and salaries for departments ending with “ing”.", a: "SELECT e.first_name, e.salary, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.department_name LIKE '%ing';", e: "استخدام LIKE للبحث عن نهاية السلاسل النصية." },
+            { q: "Write a statement to insert an employee with commission percentage NULL.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, commission_pct) \nVALUES (219, 'NullComm', 'NCOM2', SYSDATE, 'SH_CLERK', NULL);", e: "تأكيد إدخال NULL." },
+            { q: "Write a query to display departments where average salary is lower than company average.", a: "SELECT department_id, AVG(salary) \nFROM employees \nGROUP BY department_id \nHAVING AVG(salary) < (SELECT AVG(salary) FROM employees);", e: "مقارنة تجميع الأقسام بمتوسط الشركة الإجمالي." },
+            { q: "Write a statement to update salaries of employees in department 20.", a: "UPDATE employees \nSET salary = salary + 300 \nWHERE department_id = 20;", e: "إضافة رقم ثابت على الرواتب بناءً على القسم." },
+            { q: "Write a query to display employees working in the same department as employee ID 178.", a: "SELECT * \nFROM employees \nWHERE department_id = (SELECT department_id FROM employees WHERE employee_id = 178);", e: "تحديد قسم موظف محدد ثم استخدامه כفلتر." },
+            { q: "Write a query to display employees and cities for location ID 1800.", a: "SELECT e.first_name, l.city \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nWHERE l.location_id = 1800;", e: "ربط الجداول واستخدام الـ ID للموقع كشرط تصفية." },
+            { q: "Write a statement to insert an employee with salary between 5000 and 7000.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, salary) \nVALUES (220, 'MidSal', 'MSAL', SYSDATE, 'IT_PROG', 6000);", e: "تحديد قيمة الراتب يدوياً بحيث تقع في النطاق المطلوب عند الإدخال." },
+            { q: "Write a query to display employees whose salaries are greater than department maximum salaries of department 30.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT MAX(salary) FROM employees WHERE department_id = 30);", e: "استخدام الاستعلام الفرعي مع دالة MAX للقسم المذكور." },
+            { q: "Write a query to display departments with the highest number of employees.", a: "SELECT department_id \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) = (SELECT MAX(COUNT(*)) FROM employees GROUP BY department_id);", e: "الاستعلام الفرعي يجد أكبر تعداد للموظفين في الأقسام." },
+            { q: "Write a statement to update salaries for employees hired before 2004.", a: "UPDATE employees \nSET salary = salary * 1.10 \nWHERE TO_CHAR(hire_date, 'YYYY') < '2004';", e: "التأكد من التواريخ عبر دوال التحويل." },
+            { q: "Write a query to display employees who have the same job as employee ID 176.", a: "SELECT * \nFROM employees \nWHERE job_id = (SELECT job_id FROM employees WHERE employee_id = 176);", e: "جلب وظيفة الموظف المحدد وإظهار كل من يحمل نفس المسمى." },
+            { q: "Write a query to display department names and total salaries ordered descending.", a: "SELECT d.department_name, SUM(e.salary) AS total \nFROM departments d \nJOIN employees e ON d.department_id = e.department_id \nGROUP BY d.department_name \nORDER BY total DESC;", e: "تجميع وجمع للرواتب، مع ترتيب إجمالي القسم تنازلياً." },
+            { q: "Write a statement to insert an employee into department 110.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (221, 'Emp110', 'E110', SYSDATE, 'AC_ACCOUNT', 110);", e: "إدخال بيانات في قسم الحسابات غالباً." },
+            { q: "Write a query to display employees earning less than employee ID 200.", a: "SELECT * \nFROM employees \nWHERE salary < (SELECT salary FROM employees WHERE employee_id = 200);", e: "مقارنة الرواتب بعد استخراجه باستعلام فرعي." },
+            { q: "Write a query to display departments with minimum salaries greater than 5000.", a: "SELECT department_id, MIN(salary) \nFROM employees \nGROUP BY department_id \nHAVING MIN(salary) > 5000;", e: "استخدام الدالة الصغرى والتأكد أن أقل راتب في القسم يتخطى الـ 5000." },
+            { q: "Write a statement to update job IDs for clerks.", a: "UPDATE employees \nSET job_id = 'SR_CLERK' \nWHERE job_id LIKE '%CLERK%';", e: "تعديل المسميات الوظيفية بناءً على نمط النص." },
+            { q: "Write a query to display employees whose salaries equal the highest salary in their departments.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary = (SELECT MAX(salary) FROM employees e2 WHERE e1.department_id = e2.department_id);", e: "استعلام مرتبط يعتمد على قسم الموظف الخارجي لإنشاء شرط التساوي مع أعلى راتب داخلي." },
+            { q: "Write a query to display employee names and salaries for departments located in Southlake.", a: "SELECT e.first_name, e.salary \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nWHERE l.city = 'Southlake';", e: "الربط متعدد الجداول ثم استهداف المدينة المحددة." },
+            { q: "Write a statement to insert a new employee with manager ID 201.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, manager_id) \nVALUES (222, 'Under201', 'U201', SYSDATE, 'MK_REP', 201);", e: "إعطاء قيمة مباشرة للـ Manager ID وقت الإنشاء." },
+            { q: "Write a query to display employees earning above department average salaries.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary > (SELECT AVG(salary) FROM employees e2 WHERE e1.department_id = e2.department_id);", e: "الاستعلام المتشعب للتحقق من قيمة الراتب مقابل المتوسط المحلي." },
+            { q: "Write a query to display departments where total salary exceeds department 50 total salary.", a: "SELECT department_id, SUM(salary) \nFROM employees \nGROUP BY department_id \nHAVING SUM(salary) > (SELECT SUM(salary) FROM employees WHERE department_id = 50);", e: "مقارنة مجاميع الرواتب بین الأقسام باستخدام الاستعلام الفرعي." },
+            { q: "Write a statement to update salaries for employees with no commission.", a: "UPDATE employees \nSET salary = salary + 100 \nWHERE commission_pct IS NULL;", e: "منح زيادة مالية للموظفين الذين لا يتلقون عمولات." },
+            { q: "Write a query to display employees hired after the latest hire date in department 50.", a: "SELECT * \nFROM employees \nWHERE hire_date > (SELECT MAX(hire_date) FROM employees WHERE department_id = 50);", e: "استخدام دالة MAX مع التواريخ لجلب التاريخ الأحدث." },
+            { q: "Write a query to display employee names and department names where departments contain more than 10 employees.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.department_id IN (SELECT department_id FROM employees GROUP BY department_id HAVING COUNT(*) > 10);", e: "استخدام IN مع استعلام فرعي يجلب فقط الأقسام المكتظة." },
+            { q: "Write a statement to insert an employee into department 40.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (223, 'HR_Emp', 'HREMP', SYSDATE, 'HR_REP', 40);", e: "جملة إدخال بسيطة في قسم الـ HR (40)." },
+            { q: "Write a query to display employees whose salaries are lower than all employees in department 80.", a: "SELECT * \nFROM employees \nWHERE salary < ALL (SELECT salary FROM employees WHERE department_id = 80);", e: "أقل من الجميع يعني استخدام معامل < ALL أو المقارنة مع MIN." },
+            { q: "Write a query to display departments with managers whose IDs are greater than 100.", a: "SELECT * \nFROM departments \nWHERE manager_id > 100;", e: "استعلام مبسط على جدول الأقسام وتطبيق الشرط على رقم المدير." },
+            { q: "Write a statement to update salaries for employees in department 80.", a: "UPDATE employees \nSET salary = salary * 1.05 \nWHERE department_id = 80;", e: "تحديث روتيني على رواتب قسم محدد." },
+            { q: "Write a query to display employees whose salaries are greater than employee ID 140 but lower than employee ID 150.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT salary FROM employees WHERE employee_id = 140) \nAND salary < (SELECT salary FROM employees WHERE employee_id = 150);", e: "استخدام استعلامين فرعيين لتحديد الحدود الدنيا والعليا للشرط." },
+            { q: "Write a query to display employee names and salaries for departments located in location ID 2500.", a: "SELECT e.first_name, e.salary \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.location_id = 2500;", e: "الربط مع جدول واحد للحصول على رقم الموقع والمطابقة عليه." },
+            { q: "Write a statement to insert a marketing representative into department 20.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (224, 'Marketer', 'MKTREP', SYSDATE, 'MK_REP', 20);", e: "إنشاء موظف تسويق في القسم المناسب له." },
+            { q: "Write a query to display employees whose salaries equal the average salary of their jobs.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary = (SELECT AVG(salary) FROM employees e2 WHERE e1.job_id = e2.job_id);", e: "الاستعلام المتشعب هنا يطابق الـ Job ID بدلاً من الـ Department ID." },
+            { q: "Write a query to display departments with average salaries between 6000 and 10000.", a: "SELECT department_id, AVG(salary) \nFROM employees \nGROUP BY department_id \nHAVING AVG(salary) BETWEEN 6000 AND 10000;", e: "استخدام معامل النطاق BETWEEN في قسم التجميعات." },
+            { q: "Write a statement to update commission percentages for employees in department 80 with salaries below 7000.", a: "UPDATE employees \nSET commission_pct = 0.25 \nWHERE department_id = 80 AND salary < 7000;", e: "تحديث مركب يضم شرطين من أعمدة مختلفة للموظف." },
+            { q: "Write a query to display employees hired in the same month as employee ID 110.", a: "SELECT * \nFROM employees \nWHERE TO_CHAR(hire_date, 'MM') = (SELECT TO_CHAR(hire_date, 'MM') FROM employees WHERE employee_id = 110);", e: "استخدام دوال التحويل لاستخلاص الشهر فقط ومقارنته." },
+            { q: "Write a query to display employees and department names for departments located in Europe.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nJOIN regions r ON ... -- Assuming regions logic or simply city='London' based on context \nWHERE l.city IN ('London', 'Munich');", e: "ربط الجداول وصولاً إلى الموقع/الإقليم وتطبيق شرط النطاق." },
+            { q: "Write a statement to insert an employee with no commission and no manager.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, manager_id, commission_pct) \nVALUES (225, 'Independent', 'IND', SYSDATE, 'IT_PROG', NULL, NULL);", e: "تعيين قيم NULL للأعمدة المحددة عند الإضافة." },
+            { q: "Write a query to display employees earning the third highest salary in the company.", a: "SELECT * FROM (SELECT first_name, salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rank FROM employees) \nWHERE rank = 3;", e: "من الطرق المتقدمة استخدام DENSE_RANK لترتيب الرواتب وتجاهل التكرارات." },
+            { q: "Write a query to display department names with the smallest number of employees.", a: "SELECT department_id \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) = (SELECT MIN(COUNT(*)) FROM employees GROUP BY department_id);", e: "التجميع وإيجاد القيمة الصغرى عبر الدالة التجميعية المتداخلة." },
+            { q: "Write a statement to update salaries for employees whose salaries are between 3000 and 6000.", a: "UPDATE employees \nSET salary = salary * 1.05 \nWHERE salary BETWEEN 3000 AND 6000;", e: "استخدام المدى السعري كشرط للتحديث." },
+            { q: "Write a query to display employees managed by employee ID 101.", a: "SELECT * \nFROM employees \nWHERE manager_id = 101;", e: "استعلام استرجاع بيانات بسيط بفلتر واحد." },
+            { q: "Write a query to display employee names and salaries where salary exceeds 9000.", a: "SELECT first_name, salary \nFROM employees \nWHERE salary > 9000;", e: "استعلام قياسي (Basic) بدون أي تعقيدات." },
+            { q: "Write a statement to insert a sales clerk into department 80.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (226, 'SalesClerk', 'SCLK', SYSDATE, 'SA_CLERK', 80);", e: "إدخال بيانات بمهنة محددة وقسم." },
+            { q: "Write a query to display employees whose salary equals the minimum salary of department 100.", a: "SELECT * \nFROM employees \nWHERE salary = (SELECT MIN(salary) FROM employees WHERE department_id = 100);", e: "الاستعلام الفرعي يجهز أقل قيمة ليقارنها المساواة بالاستعلام الأساسي." },
+            { q: "Write a query to display departments with total salaries less than department 80.", a: "SELECT department_id, SUM(salary) \nFROM employees \nGROUP BY department_id \nHAVING SUM(salary) < (SELECT SUM(salary) FROM employees WHERE department_id = 80);", e: "مقارنة الـ SUM بين مجموعة الأقسام والقسم المستهدف." },
+            { q: "Write a statement to update manager IDs for employees in department 70.", a: "UPDATE employees \nSET manager_id = 204 \nWHERE department_id = 70;", e: "نقل الموظفين لمدير جديد عبر أمر التحديث." },
+            { q: "Write a query to display employees earning more than the average salary of department 90.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT AVG(salary) FROM employees WHERE department_id = 90);", e: "استخراج المتوسط ومقارنته بشكل أكبر من." },
+            { q: "Write a query to display employees and location IDs using joins across three tables.", a: "SELECT e.first_name, l.location_id \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id;", e: "استخدام JOIN مرتين للربط بين 3 جداول بشكل متسلسل." },
+            { q: "Write a statement to insert an employee with salary 4200 into department 50.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, salary) \nVALUES (227, 'MidEmp', 'MEMP', SYSDATE, 'ST_CLERK', 50, 4200);", e: "تخصيص كامل القيم ومنها القسم والراتب وقت الإنشاء." },
+            { q: "Write a query to display employees whose salaries exceed the average salary of employees with the same job ID.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary > (SELECT AVG(salary) FROM employees e2 WHERE e1.job_id = e2.job_id);", e: "استعلام مرتبط يعتمد على توافق الـ job_id لاحتساب المتوسط." },
+            { q: "Write a query to display departments with the highest minimum salary.", a: "SELECT department_id, MIN(salary) \nFROM employees \nGROUP BY department_id \nHAVING MIN(salary) = (SELECT MAX(MIN(salary)) FROM employees GROUP BY department_id);", e: "تداخل متطور للتجميعات: البحث عن أكبر قيمة ضمن أصغر القيم للأقسام." },
+            { q: "Write a statement to update salaries by 6% for employees in department 60.", a: "UPDATE employees \nSET salary = salary * 1.06 \nWHERE department_id = 60;", e: "الزيادة المئوية تحسب بالضرب في المعامل المضاف للواحد الصحيح." },
+            { q: "Write a query to display employees whose salaries are lower than employee ID 117.", a: "SELECT * \nFROM employees \nWHERE salary < (SELECT salary FROM employees WHERE employee_id = 117);", e: "فلترة الرواتب استناداً لمعلومة من سجل محدد في القاعدة." },
+            { q: "Write a query to display employee names and department names where department ID is greater than 50.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.department_id > 50;", e: "ربط جداول الموظفين والأقسام وتطبيق فلترة عددية على رقم القسم." },
+            { q: "Write a statement to insert an employee with department ID 90 and manager ID 100.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, manager_id) \nVALUES (228, 'DevOps', 'DEV', SYSDATE, 'IT_PROG', 90, 100);", e: "إدخال بيانات الموظف مع إعطاء معلومات مرجعية للقسم والمدير." },
+            { q: "Write a query to display employees working in departments with names containing “Executive”.", a: "SELECT e.* \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.department_name LIKE '%Executive%';", e: "استخدام LIKE للبحث ضمن محتوى السلسلة النصية لاسم القسم." },
+            { q: "Write a query to display departments with maximum salaries below 10000.", a: "SELECT department_id, MAX(salary) \nFROM employees \nGROUP BY department_id \nHAVING MAX(salary) < 10000;", e: "استبعاد الأقسام التي يحصل أي موظف فيها على أكثر من 10000." },
+            { q: "Write a statement to update salaries for employees whose job IDs end with REP.", a: "UPDATE employees \nSET salary = salary + 500 \nWHERE job_id LIKE '%REP';", e: "تحديث بيانات مجموعة محددة بناءً على نهاية رمز الوظيفة." },
+            { q: "Write a query to display employees hired on the earliest hire date.", a: "SELECT * \nFROM employees \nWHERE hire_date = (SELECT MIN(hire_date) FROM employees);", e: "إيجاد أقدم موظف باستخدام دالة MIN مع التاريخ." },
+            { q: "Write a query to display employee names and salaries where salaries are between department average and department maximum salaries.", a: "SELECT e1.first_name, e1.salary \nFROM employees e1 \nWHERE salary BETWEEN \n(SELECT AVG(salary) FROM employees e2 WHERE e1.department_id = e2.department_id) \nAND \n(SELECT MAX(salary) FROM employees e3 WHERE e1.department_id = e3.department_id);", e: "استخدام استعلامين مرتبطين لتحديد حدي معامل BETWEEN." },
+            { q: "Write a statement to insert an employee into department 30 with no commission.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, commission_pct) \nVALUES (229, 'PurcEmp', 'PURC', SYSDATE, 'PU_CLERK', 30, NULL);", e: "الإشارة إلى انعدام العمولة عبر تمرير NULL." },
+            { q: "Write a query to display employees whose salaries equal the second lowest salary in the company.", a: "SELECT * \nFROM employees \nWHERE salary = (SELECT MIN(salary) FROM employees WHERE salary > (SELECT MIN(salary) FROM employees));", e: "التخلص من أدنى راتب عبر الاستعلام الداخلي ثم جلب الأدنى مما تبقى." },
+            { q: "Write a query to display departments with average commission percentages above 0.20.", a: "SELECT department_id, AVG(commission_pct) \nFROM employees \nGROUP BY department_id \nHAVING AVG(commission_pct) > 0.20;", e: "التجميع باستخدام قيمة كسرية." },
+            { q: "Write a statement to update salaries for employees working under manager ID 108.", a: "UPDATE employees \nSET salary = salary * 1.05 \nWHERE manager_id = 108;", e: "تطبيق التحديث على فريق كامل يتبع لمدير محدد." },
+            { q: "Write a query to display employees who receive the highest commission percentage.", a: "SELECT * \nFROM employees \nWHERE commission_pct = (SELECT MAX(commission_pct) FROM employees);", e: "الاستعلام البسيط باستخدام دالة MAX لنسبة العمولة." },
+            { q: "Write a query to display employee names and department names for departments located in location ID 1400.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.location_id = 1400;", e: "استهداف الموظفين بناءً على مقر القسم الخاص بهم عبر ربط الجدولين." },
+            { q: "Write a statement to insert an employee with salary equal to department average.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, salary) \nVALUES (230, 'AvgEmp', 'AVGM', SYSDATE, 'IT_PROG', 60, (SELECT AVG(salary) FROM employees WHERE department_id = 60));", e: "استخدام استعلام فرعي بداخل جملة الإدخال لتحديد القيمة!" },
+            { q: "Write a query to display employees whose salaries are below average salary of their managers’ departments.", a: "SELECT e.first_name, e.salary \nFROM employees e \nJOIN employees m ON e.manager_id = m.employee_id \nWHERE e.salary < (SELECT AVG(salary) FROM employees WHERE department_id = m.department_id);", e: "ربط ذاتي للمدير، ثم استعلام مرتبط لجلب متوسط قسم المدير." },
+            { q: "Write a query to display departments with fewer employees than department 50.", a: "SELECT department_id, COUNT(*) \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) < (SELECT COUNT(*) FROM employees WHERE department_id = 50);", e: "مقارنة العدادات عبر الاستعلام الفرعي التجميعي." },
+            { q: "Write a statement to update salaries for all clerks by 7%.", a: "UPDATE employees \nSET salary = salary * 1.07 \nWHERE job_id LIKE '%CLERK%';", e: "فلترة المسمى الوظيفي بكلمة جزئية وإجراء الزيادة." },
+            { q: "Write a query to display employees working under the same manager as employee ID 149.", a: "SELECT * \nFROM employees \nWHERE manager_id = (SELECT manager_id FROM employees WHERE employee_id = 149);", e: "مقارنة متطابقة لعمود الـ Manager ID." },
+            { q: "Write a query to display employee names and salaries for departments with manager ID greater than 100.", a: "SELECT e.first_name, e.salary \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.manager_id > 100;", e: "الربط مع جدول الأقسام لاستخدام عمود مدير القسم كشرط بحث." },
+            { q: "Write a statement to insert a programmer into department 90.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id) \nVALUES (231, 'NewProg', 'NPRG', SYSDATE, 'IT_PROG', 90);", e: "عملية إدخال سريعة ببيانات محددة." },
+            { q: "Write a query to display employees whose salary is greater than the minimum salary in department 60.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT MIN(salary) FROM employees WHERE department_id = 60);", e: "شرط مبني على أصغر قيمة من الاستعلام الفرعي (أو استخدام > ANY)." },
+            { q: "Write a query to display departments with total commissions greater than 1.", a: "SELECT department_id, SUM(commission_pct) \nFROM employees \nGROUP BY department_id \nHAVING SUM(commission_pct) > 1;", e: "تجميع الـ SUM للعمولات الكسرية للمقارنة في HAVING." },
+            { q: "Write a statement to update commission percentage to 0.30 for high salary sales employees.", a: "UPDATE employees \nSET commission_pct = 0.30 \nWHERE job_id LIKE 'SA_%' AND salary > 10000;", e: "وضع شرطين للتحديث لضمان أن الموظف بائع وذو راتب عالٍ." },
+            { q: "Write a query to display employees hired later than employee ID 176.", a: "SELECT * \nFROM employees \nWHERE hire_date > (SELECT hire_date FROM employees WHERE employee_id = 176);", e: "مقارنة تواريخ التعيين بحيث الأكبر هو الأحدث." },
+            { q: "Write a query to display employee names and salaries sorted by department name then salary.", a: "SELECT e.first_name, e.salary, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nORDER BY d.department_name ASC, e.salary DESC;", e: "ترتيب النتائج بناءً على مستويين من المعايير في الـ ORDER BY." },
+            { q: "Write a statement to insert an employee into department 80 with commission percentage 0.25.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, commission_pct) \nVALUES (232, 'ComRep', 'CREP', SYSDATE, 'SA_REP', 80, 0.25);", e: "الإدخال المعزز بجميع الأعمدة المطلوبة كشرط." },
+            { q: "Write a query to display employees whose salaries are lower than department average salaries.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary < (SELECT AVG(salary) FROM employees e2 WHERE e1.department_id = e2.department_id);", e: "استعلام مرتبط يعتمد على قيمة ديناميكية من القسم في كل صف مقروء." },
+            { q: "Write a query to display departments with more employees than department 90.", a: "SELECT department_id, COUNT(*) \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) > (SELECT COUNT(*) FROM employees WHERE department_id = 90);", e: "المقارنة مع الإحصاء الناتج عن استعلام فرعي داخل الـ HAVING." },
+            { q: "Write a statement to update salaries for employees in department 100.", a: "UPDATE employees \nSET salary = salary * 1.15 \nWHERE department_id = 100;", e: "تعديل رواتب جماعي لمرؤوسي قسم واحد." },
+            { q: "Write a query to display employees whose salaries equal the maximum salary in department 90.", a: "SELECT * \nFROM employees \nWHERE salary = (SELECT MAX(salary) FROM employees WHERE department_id = 90);", e: "مطابقة الراتب بشكل مطلق مع أعلى قيمة في قسم ما." },
+            { q: "Write a query to display employee names and location IDs for departments located in Canada.", a: "SELECT e.first_name, d.location_id \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nJOIN countries c ON l.country_id = c.country_id \nWHERE c.country_name = 'Canada';", e: "تتبع مسار الربط بين الجداول إلى جدول الدول وتحديد الاسم." },
+            { q: "Write a statement to insert an employee with salary 12000.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, salary) \nVALUES (233, 'RichEmp', 'REMP', SYSDATE, 'SA_MAN', 12000);", e: "تضمين حقل الراتب بصورة مباشرة أثناء الإنشاء." },
+            { q: "Write a query to display employees earning less than company maximum salary.", a: "SELECT * \nFROM employees \nWHERE salary < (SELECT MAX(salary) FROM employees);", e: "بمعنى إظهار الجميع عدا الأعلى راتباً بالشركة." },
+            { q: "Write a query to display departments where average salary exceeds company average salary.", a: "SELECT department_id, AVG(salary) \nFROM employees \nGROUP BY department_id \nHAVING AVG(salary) > (SELECT AVG(salary) FROM employees);", e: "الاستعلام الفرعي يحسب متوسط الشركة ويستخدم في جملة التجميع HAVING للمقارنة." },
+            { q: "Write a statement to update job IDs for employees hired before 2003.", a: "UPDATE employees \nSET job_id = 'AD_ASST' \nWHERE TO_CHAR(hire_date, 'YYYY') < '2003';", e: "استهداف الموظفين القدامى لتغيير مسمياتهم." },
+            { q: "Write a query to display employees with the same salary as employee ID 145.", a: "SELECT * \nFROM employees \nWHERE salary = (SELECT salary FROM employees WHERE employee_id = 145);", e: "استعلام فرعي يستخدم أداة المساواة." },
+            { q: "Write a query to display employee names and salaries for employees with no commission.", a: "SELECT first_name, salary \nFROM employees \nWHERE commission_pct IS NULL;", e: "استخدام IS NULL كعنصر فحص في جملة القيود الـ WHERE." },
+            { q: "Write a statement to insert a new employee into department 70 under manager 145.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, manager_id) \nVALUES (234, 'Dept70New', 'D70N', SYSDATE, 'PR_REP', 70, 145);", e: "تخصيص البيانات الهرمية للموظف في جملة الإضافة." },
+            { q: "Write a query to display employees whose salaries are greater than all salaries in department 60.", a: "SELECT * \nFROM employees \nWHERE salary > ALL (SELECT salary FROM employees WHERE department_id = 60);", e: "المعامل المنطقي ALL يُجبر الشرط على التفوق على كل المخرجات." },
+            { q: "Write a query to display departments with total employees equal to department 50.", a: "SELECT department_id, COUNT(*) \nFROM employees \nGROUP BY department_id \nHAVING COUNT(*) = (SELECT COUNT(*) FROM employees WHERE department_id = 50);", e: "مساواة العدادات في مرحلة الـ HAVING." },
+            { q: "Write a statement to update commission percentages for employees managed by manager ID 100.", a: "UPDATE employees \nSET commission_pct = 0.20 \nWHERE manager_id = 100;", e: "تغيير القيمة لفريق عمل كامل يعتمد على مدير واحد." },
+            { q: "Write a query to display employees hired before the average hire date of the company.", a: "SELECT * \nFROM employees \nWHERE hire_date < (SELECT AVG(hire_date - TO_DATE('01-JAN-1970')) + TO_DATE('01-JAN-1970') FROM employees);", e: "التعامل مع التواريخ بمتوسطات يتطلب تحويلاً رقمياً أو استخدام مقاييس الأيام." },
+            { q: "Write a query to display employee names and department names ordered by department name.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nORDER BY d.department_name;", e: "دمج البيانات ثم الفرز حسب عمود اسم القسم." },
+            { q: "Write a statement to insert an employee with commission percentage 0.05.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, commission_pct) \nVALUES (235, 'LowComm', 'LCOM', SYSDATE, 'SA_REP', 0.05);", e: "إدخال مباشر." },
+            { q: "Write a query to display employees whose salaries are below company minimum salary plus 1000.", a: "SELECT * \nFROM employees \nWHERE salary < (SELECT MIN(salary) + 1000 FROM employees);", e: "عملية حسابية بسيطة تُنفذ بداخل الاستعلام الفرعي." },
+            { q: "Write a query to display departments with highest total salaries.", a: "SELECT department_id \nFROM employees \nGROUP BY department_id \nHAVING SUM(salary) = (SELECT MAX(SUM(salary)) FROM employees GROUP BY department_id);", e: "الحصول على الحد الأقصى للمجاميع عبر تداخل الدوال." },
+            { q: "Write a statement to update salaries for employees in departments located in 1700.", a: "UPDATE employees \nSET salary = salary + 200 \nWHERE department_id IN (SELECT department_id FROM departments WHERE location_id = 1700);", e: "استخدام استعلام فرعي لجدول الأقسام للحصول على الأقسام الموجودة بالموقع وربطها بالموظفين في الـ UPDATE." },
+            { q: "Write a query to display employees working in departments located in Oxford.", a: "SELECT e.* \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nWHERE l.city = 'Oxford';", e: "ربط جداول الموظفين، الأقسام، والمواقع ثم الفلترة عبر الحقل الخاص بالمدينة." },
+            { q: "Write a query to display employee names and manager names using self joins.", a: "SELECT e.first_name AS Emp_Name, m.first_name AS Mgr_Name \nFROM employees e \nJOIN employees m ON e.manager_id = m.employee_id;", e: "نفس جدول الموظفين يربط مع نفسه. e للموظف و m للمدير." },
+            { q: "Write a statement to insert an employee with salary lower than department average.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, salary) \nVALUES (236, 'LessAvg', 'LAVG', SYSDATE, 'IT_PROG', 60, (SELECT AVG(salary)-500 FROM employees WHERE department_id = 60));", e: "تحديد القيمة بحسبة رياضية ضمن الاستعلام الفرعي للإدخال." },
+            { q: "Write a query to display employees whose salaries are greater than the average salary of department 30.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT AVG(salary) FROM employees WHERE department_id = 30);", e: "مقارنة برقم مرجعي ناتج من حسابات استعلام فرعي." },
+            { q: "Write a query to display departments with maximum salaries greater than 15000.", a: "SELECT department_id, MAX(salary) \nFROM employees \nGROUP BY department_id \nHAVING MAX(salary) > 15000;", e: "تحديد معيار القيمة العظمى بالـ HAVING." },
+            { q: "Write a statement to update salaries for employees hired before 2006.", a: "UPDATE employees \nSET salary = salary * 1.05 \nWHERE TO_CHAR(hire_date, 'YYYY') < '2006';", e: "تطبيق التحديث على شريحة زمنية." },
+            { q: "Write a query to display employees whose salaries are not equal to department average salaries.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary != (SELECT AVG(salary) FROM employees e2 WHERE e1.department_id = e2.department_id);", e: "تطبيق النفي في المعاملات مع استعلام فرعي مترابط." },
+            { q: "Write a query to display employee names and salaries for employees in departments located in location ID 1700.", a: "SELECT e.first_name, e.salary \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.location_id = 1700;", e: "ربط واستعلام مباشر للفرز بواسطة الكود." },
+            { q: "Write a statement to insert a new employee into department 100 with commission percentage NULL.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, commission_pct) \nVALUES (237, 'FiEmp', 'FIEMP', SYSDATE, 'FI_ACCOUNT', 100, NULL);", e: "تمرير NULL للحقول الخالية." },
+            { q: "Write a query to display employees earning more than employee ID 150.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT salary FROM employees WHERE employee_id = 150);", e: "مقارنة الرواتب بعد الإشارة למوظف أساسي." },
+            { q: "Write a query to display departments with average salaries less than 5000.", a: "SELECT department_id, AVG(salary) \nFROM employees \nGROUP BY department_id \nHAVING AVG(salary) < 5000;", e: "استخدام HAVING مع التجميع للأقل من المتوسط المنشود." },
+            { q: "Write a statement to update salaries for employees whose salaries are below company average.", a: "UPDATE employees \nSET salary = salary * 1.10 \nWHERE salary < (SELECT AVG(salary) FROM employees);", e: "التحديث يعتمد على استخراج متوسط الرواتب الكلي وتطبيقه كشرط." },
+            { q: "Write a query to display employees hired in the same year as employee ID 104.", a: "SELECT * \nFROM employees \nWHERE TO_CHAR(hire_date, 'YYYY') = (SELECT TO_CHAR(hire_date, 'YYYY') FROM employees WHERE employee_id = 104);", e: "تجريد التاريخ إلى سنة لمقارنته في الجهتين." },
+            { q: "Write a query to display employee names and department names where departments start with letter A.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE d.department_name LIKE 'A%';", e: "استخدام الربط، ثم نمط المطابقة (LIKE) للبحث بالأحرف." },
+            { q: "Write a statement to insert a new employee managed by employee ID 205.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, manager_id) \nVALUES (238, 'MngEmp', 'MNEMP', SYSDATE, 'ST_CLERK', 205);", e: "ربط الموظف بمدير مباشر أثناء الإنشاء." },
+            { q: "Write a query to display employees whose salaries are greater than employee ID 103.", a: "SELECT * \nFROM employees \nWHERE salary > (SELECT salary FROM employees WHERE employee_id = 103);", e: "مقارنة راتب الموظف 103 برواتب الآخرين." },
+            { q: "Write a query to display departments with minimum salary lower than 2500.", a: "SELECT department_id, MIN(salary) \nFROM employees \nGROUP BY department_id \nHAVING MIN(salary) < 2500;", e: "استخدام الدالة التجميعية للقيمة الصغرى كشرط في الـ HAVING." },
+            { q: "Write a statement to update commission percentage for employees in department 50.", a: "UPDATE employees \nSET commission_pct = 0.15 \nWHERE department_id = 50;", e: "تحديث قيمة محددة بناءً على رقم القسم." },
+            { q: "Write a query to display employees working in the same department as employee ID 110.", a: "SELECT * \nFROM employees \nWHERE department_id = (SELECT department_id FROM employees WHERE employee_id = 110);", e: "استعلام فرعي لجلب رقم القسم ومساواته." },
+            { q: "Write a query to display employee names and salaries for departments located in Asia.", a: "SELECT e.first_name, e.salary \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nJOIN locations l ON d.location_id = l.location_id \nJOIN countries c ON l.country_id = c.country_id \nJOIN regions r ON c.region_id = r.region_id \nWHERE r.region_name = 'Asia';", e: "ربط 5 جداول متتابعة للوصول إلى اسم الإقليم (القارة)." },
+            { q: "Write a statement to insert a new employee into department 20 with salary 5500.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, department_id, salary) \nVALUES (239, 'MktRep', 'MREP', SYSDATE, 'MK_REP', 20, 5500);", e: "إدخال بيانات الموظف والقسم والراتب معاً." },
+            { q: "Write a query to display employees whose salaries are equal to company average salary.", a: "SELECT * \nFROM employees \nWHERE salary = (SELECT AVG(salary) FROM employees);", e: "مساواة الراتب الشخصي بمتوسط الشركة الإجمالي." },
+            { q: "Write a query to display departments with total salary greater than 60000.", a: "SELECT department_id, SUM(salary) \nFROM employees \nGROUP BY department_id \nHAVING SUM(salary) > 60000;", e: "الـ SUM يستخدم داخل HAVING لترشيح المجاميع." },
+            { q: "Write a statement to update salaries for employees in department 90.", a: "UPDATE employees \nSET salary = salary * 1.10 \nWHERE department_id = 90;", e: "أمر UPDATE للقسم التقني." },
+            { q: "Write a query to display employees hired after employee ID 108.", a: "SELECT * \nFROM employees \nWHERE hire_date > (SELECT hire_date FROM employees WHERE employee_id = 108);", e: "الـ > مع التواريخ تعني أحدث، أي بعد." },
+            { q: "Write a query to display employee names and department names for employees earning above 10000.", a: "SELECT e.first_name, d.department_name \nFROM employees e \nJOIN departments d ON e.department_id = d.department_id \nWHERE e.salary > 10000;", e: "ربط الجداول ثم التصفية بقيمة الراتب." },
+            { q: "Write a statement to insert a sales employee with commission percentage 0.18.", a: "INSERT INTO employees (employee_id, last_name, email, hire_date, job_id, commission_pct) \nVALUES (240, 'SaleGuy', 'SGUY', SYSDATE, 'SA_REP', 0.18);", e: "تضمين القيمة الكسرية في البيانات المدخلة." },
+            { q: "Write a query to display employees whose salaries are less than department maximum salaries.", a: "SELECT e1.* \nFROM employees e1 \nWHERE salary < (SELECT MAX(salary) FROM employees e2 WHERE e1.department_id = e2.department_id);", e: "بمعنى آخر، إظهار الجميع ماعدا أصحاب أعلى رواتب في كل قسم، باستخدام استعلام مرتبط." },
+            { q: "Write a query to display departments with average salaries ordered descending.", a: "SELECT department_id, AVG(salary) AS avg_sal \nFROM employees \nGROUP BY department_id \nORDER BY avg_sal DESC;", e: "تجميع الأقسام، واستخدام ترتيب تنازلي بناءً على اسم مستعار (Alias)." }
+        ];
+
+        // Autodetect categories to save time & improve UX
+        function assignCategory(sql) {
+            const up = sql.toUpperCase();
+            if (up.includes("INSERT ") || up.includes("UPDATE ") || up.includes("DELETE ")) return "Les09";
+            if (up.includes("(SELECT") || up.includes(" ALL (") || up.includes(" ANY (")) return "Les07";
+            if (up.includes(" JOIN ")) return "Les06";
+            if (up.includes("GROUP BY") || up.includes("HAVING") || up.match(/\b(SUM|AVG|MAX|MIN|COUNT)\(/)) return "Les04";
+            if (up.match(/\b(TO_CHAR|TO_DATE|NVL|DECODE|TRUNC|UPPER|LOWER)\(/)) return "Les03";
+            if (up.includes("WHERE ") || up.includes("ORDER BY") || up.includes("LIKE ") || up.includes("BETWEEN ")) return "Les02";
+            return "Les01";
+        }
+
+        const questionsData = rawQuestions.map((item, index) => {
+            return {
+                id: index + 1,
+                q: item.q,
+                a: item.a,
+                e: item.e,
+                cat: assignCategory(item.a)
+            };
+        });
+
+        const catLabels = {
+            "Les01": "سكشن 1: Basic SELECT",
+            "Les02": "سكشن 2: Restrict & Sort",
+            "Les03": "سكشن 3: Single-Row Functions",
+            "Les04": "سكشن 4: Group Functions",
+            "Les06": "سكشن 6: Joins",
+            "Les07": "سكشن 7: Subqueries",
+            "Les09": "سكشن 9: DML (Insert/Update)"
+        };
+
+        const catColors = {
+            "Les01": "bg-slate-100 text-slate-800",
+            "Les02": "bg-emerald-100 text-emerald-800",
+            "Les03": "bg-teal-100 text-teal-800",
+            "Les04": "bg-orange-100 text-orange-800",
+            "Les06": "bg-indigo-100 text-indigo-800",
+            "Les07": "bg-purple-100 text-purple-800",
+            "Les09": "bg-rose-100 text-rose-800"
+        };
+
+        // Syntax Highlighter function
+        function syntaxHighlight(code) {
+            let formatted = code
+                .replace(/(SELECT|FROM|WHERE|JOIN|ON|UPDATE|SET|INSERT INTO|VALUES|GROUP BY|HAVING|ORDER BY|AND|OR|IN|BETWEEN|LIKE|IS NULL|ALL|DESC|ASC|AS)/g, '<span class="sql-keyword">$1</span>')
+                .replace(/('.*?')/g, '<span class="sql-string">$1</span>')
+                .replace(/\b(\d+(\.\d+)?)\b/g, '<span class="sql-number">$1</span>');
+            return formatted;
+        }
+
+        const container = document.getElementById('questionsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const filterSelect = document.getElementById('filterSelect');
+        const resultCount = document.getElementById('resultCount');
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        let isExpandedAll = false;
+
+        function renderQuestions(data) {
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="text-center py-10 text-slate-500"><i class="fas fa-search-minus text-4xl mb-3"></i><p>لم يتم العثور على نتائج تطابق بحثك.</p></div>';
+            }
+
+            data.forEach(item => {
+                const el = document.createElement('div');
+                el.className = "bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-200";
+
+                // Header (Question)
+                const header = document.createElement('button');
+                header.className = "w-full text-left p-4 font-semibold text-slate-800 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors focus:outline-none";
+                header.innerHTML = `
+                    <div class="flex-1 ml-4 text-left leading-relaxed text-slate-700" dir="ltr">
+                        <span class="text-blue-500 mr-2 font-bold">${item.id}.</span>${item.q}
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs px-2 py-1 rounded-full whitespace-nowrap ${catColors[item.cat]}">${catLabels[item.cat]}</span>
+                        <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 pointer-events-none toggle-icon"></i>
+                    </div>
+                `;
+
+                // Body (Code & Explanation)
+                const body = document.createElement('div');
+                body.className = "hidden border-t border-slate-100 accordion-body bg-slate-50";
+
+                // Build the SQL block
+                const highlightedCode = syntaxHighlight(item.a);
+                body.innerHTML = `
+                    <div class="p-4" dir="ltr">
+                        <div class="relative bg-slate-800 text-slate-50 p-4 pt-8 rounded-lg font-mono text-sm overflow-x-auto shadow-inner border border-slate-700">
+                            <span class="absolute top-2 left-3 text-xs text-slate-500 uppercase tracking-widest font-sans font-bold">SQL</span>
+                            <button onclick="copyToClipboard(this, \`${item.a.replace(/`/g, '\\`')}\`)" class="absolute top-2 right-2 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded text-xs transition-colors" title="Copy code">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <pre class="leading-relaxed whitespace-pre-wrap"><code>${highlightedCode}</code></pre>
+                        </div>
+                    </div>
+                    <div class="mx-4 mb-4 p-4 bg-blue-50/50 text-blue-900 rounded-lg border border-blue-100 text-right leading-relaxed flex gap-3 shadow-sm" dir="rtl">
+                        <i class="fas fa-lightbulb text-blue-500 mt-1"></i>
+                        <div>
+                            <strong class="block mb-1 text-blue-800">شرح طريقة الحل:</strong>
+                            ${item.e}
+                        </div>
+                    </div>
+                `;
+
+                // Toggle logic
+                header.addEventListener('click', () => {
+                    const icon = header.querySelector('.toggle-icon');
+                    if (body.classList.contains('hidden')) {
+                        body.classList.remove('hidden');
+                        icon.classList.add('rotate-180');
+                    } else {
+                        body.classList.add('hidden');
+                        icon.classList.remove('rotate-180');
+                    }
+                });
+
+                el.appendChild(header);
+                el.appendChild(body);
+                container.appendChild(el);
+            });
+
+            resultCount.innerHTML = `تم العثور على <strong>${data.length}</strong> سؤال`;
+        }
+
+        function filterData() {
+            const term = searchInput.value.toLowerCase();
+            const cat = filterSelect.value;
+
+            const filtered = questionsData.filter(item => {
+                const matchTerm = item.q.toLowerCase().includes(term) || item.a.toLowerCase().includes(term);
+                const matchCat = cat === 'All' || item.cat === cat;
+                return matchTerm && matchCat;
+            });
+
+            renderQuestions(filtered);
+
+            // Re-apply expansion state if needed
+            if (isExpandedAll) {
+                document.querySelectorAll('.accordion-body').forEach(b => b.classList.remove('hidden'));
+                document.querySelectorAll('.toggle-icon').forEach(i => i.classList.add('rotate-180'));
+            }
+        }
+
+        // Global Copy Function
+        window.copyToClipboard = function (btnElement, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const icon = btnElement.querySelector('i');
+                icon.className = 'fas fa-check text-emerald-400';
+                setTimeout(() => { icon.className = 'fas fa-copy'; }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers / iframe issues
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const icon = btnElement.querySelector('i');
+                    icon.className = 'fas fa-check text-emerald-400';
+                    setTimeout(() => { icon.className = 'fas fa-copy'; }, 2000);
+                } catch (err) {
+                    console.error('Copy failed', err);
+                }
+                document.body.removeChild(textArea);
+            });
+        };
+
+        // Event Listeners
+        searchInput.addEventListener('input', filterData);
+        filterSelect.addEventListener('change', filterData);
+
+        expandAllBtn.addEventListener('click', () => {
+            isExpandedAll = !isExpandedAll;
+            const bodies = document.querySelectorAll('.accordion-body');
+            const icons = document.querySelectorAll('.toggle-icon');
+
+            if (isExpandedAll) {
+                bodies.forEach(b => b.classList.remove('hidden'));
+                icons.forEach(i => i.classList.add('rotate-180'));
+                expandAllBtn.innerHTML = '<i class="fas fa-compress-alt mr-1"></i> إغلاق الكل';
+            } else {
+                bodies.forEach(b => b.classList.add('hidden'));
+                icons.forEach(i => i.classList.remove('rotate-180'));
+                expandAllBtn.innerHTML = '<i class="fas fa-expand-alt mr-1"></i> فتح الكل';
+            }
+        });
+
+        // Initialize
+        renderQuestions(questionsData);
+
+        // Tab Switching Logic
+        const tabQuestionsBtn = document.getElementById('tabQuestionsBtn');
+        const tabLecturesBtn = document.getElementById('tabLecturesBtn');
+        const tabMcqBtn = document.getElementById('tabMcqBtn');
+
+        const questionsSection = document.getElementById('questionsSection');
+        const lecturesSection = document.getElementById('lecturesSection');
+        const mcqSection = document.getElementById('mcqSection');
+
+        function switchTab(tab) {
+            const inactiveClass = "px-8 py-3 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold shadow-sm transition-colors focus:outline-none";
+            const activeClass = "px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-md transition-colors focus:outline-none";
+
+            tabQuestionsBtn.className = inactiveClass;
+            tabLecturesBtn.className = inactiveClass;
+            tabMcqBtn.className = inactiveClass;
+
+            questionsSection.classList.add('hidden');
+            lecturesSection.classList.add('hidden');
+            mcqSection.classList.add('hidden');
+
+            if (tab === 'questions') {
+                tabQuestionsBtn.className = activeClass;
+                questionsSection.classList.remove('hidden');
+            } else if (tab === 'lectures') {
+                tabLecturesBtn.className = activeClass;
+                lecturesSection.classList.remove('hidden');
+            } else if (tab === 'mcq') {
+                tabMcqBtn.className = activeClass;
+                mcqSection.classList.remove('hidden');
+                if (!mcqInitialized) initMcq();
+            }
+        }
+
+        tabQuestionsBtn.addEventListener('click', () => switchTab('questions'));
+        tabLecturesBtn.addEventListener('click', () => switchTab('lectures'));
+        tabMcqBtn.addEventListener('click', () => switchTab('mcq'));
+
+        // MCQ Game Logic
+        let mcqInitialized = false;
+        let currentMcqIndex = 0;
+        let mcqScore = 0;
+        let mcqQuestionsList = [];
+
+        function initMcq() {
+            mcqInitialized = true;
+            mcqScore = 0;
+            currentMcqIndex = 0;
+            // Shuffle questions to make it random each time
+            mcqQuestionsList = [...questionsData].sort(() => Math.random() - 0.5);
+            loadMcqQuestion();
+        }
+
+        function loadMcqQuestion() {
+            const gameArea = document.getElementById('mcqGameArea');
+            const progress = document.getElementById('mcqProgress');
+
+            if (currentMcqIndex >= mcqQuestionsList.length) {
+                progress.innerHTML = "اكتمل الاختبار";
+                gameArea.innerHTML = `
+                    <div class="text-center py-10">
+                        <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
+                        <h3 class="text-3xl font-bold text-slate-800 mb-2">أحسنت! انتهى الاختبار</h3>
+                        <p class="text-xl text-slate-600 mb-6">لقد أجبت على ${mcqScore} سؤالاً صحيحاً من أصل ${mcqQuestionsList.length}</p>
+                        <button onclick="initMcq()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-colors">
+                            <i class="fas fa-redo ml-2"></i> إعادة الاختبار
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            progress.innerHTML = `سؤال ${currentMcqIndex + 1} / ${mcqQuestionsList.length}`;
+            const qData = mcqQuestionsList[currentMcqIndex];
+
+            // Get correct answer
+            const correctA = qData.a;
+
+            // Pick 3 random wrong answers from the rest of the dataset
+            let wrongAnswers = questionsData.filter(q => q.id !== qData.id).map(q => q.a);
+            wrongAnswers = wrongAnswers.sort(() => Math.random() - 0.5).slice(0, 3);
+
+            // Combine and shuffle options
+            let options = [{ text: correctA, isCorrect: true }, ...wrongAnswers.map(ans => ({ text: ans, isCorrect: false }))];
+            options = options.sort(() => Math.random() - 0.5);
+
+            let optionsHtml = options.map((opt, idx) => `
+                <button onclick="selectMcqAnswer(this, ${opt.isCorrect})" data-correct="${opt.isCorrect}" class="mcq-option w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all bg-slate-50 focus:outline-none mb-3 cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                        <div class="option-icon w-8 h-8 rounded-full bg-white border border-slate-300 flex items-center justify-center text-slate-500 font-bold group-hover:border-blue-400 group-hover:text-blue-500 shrink-0">${idx + 1}</div>
+                        <pre class="whitespace-pre-wrap font-mono text-sm text-slate-700 w-full" dir="ltr"><code>${syntaxHighlight(opt.text)}</code></pre>
+                    </div>
+                </button>
+            `).join('');
+
+            gameArea.innerHTML = `
+                <div class="mb-6">
+                    <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-bold mb-3">${catLabels[qData.cat] || qData.cat}</span>
+                    <h3 class="text-xl font-bold text-slate-800 leading-relaxed text-left" dir="ltr">${qData.q}</h3>
+                </div>
+                <div class="options-container">
+                    ${optionsHtml}
+                </div>
+                <div id="mcqFeedback" class="hidden mt-6 p-4 rounded-xl border"></div>
+                <div class="mt-6 flex justify-end">
+                    <button id="nextMcqBtn" onclick="nextMcqQuestion()" class="hidden px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors">
+                        السؤال التالي <i class="fas fa-arrow-left mr-2"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        window.selectMcqAnswer = function (btn, isCorrect) {
+            // Prevent multiple clicks
+            const allOptions = document.querySelectorAll('.mcq-option');
+            allOptions.forEach(opt => {
+                opt.onclick = null;
+                opt.classList.remove('hover:border-blue-400', 'hover:bg-blue-50', 'cursor-pointer');
+            });
+
+            const feedback = document.getElementById('mcqFeedback');
+            const nextBtn = document.getElementById('nextMcqBtn');
+            const qData = mcqQuestionsList[currentMcqIndex];
+
+            // Show correct/incorrect visually
+            allOptions.forEach(opt => {
+                const isThisCorrect = opt.getAttribute('data-correct') === 'true';
+                const iconDiv = opt.querySelector('.option-icon');
+
+                if (isThisCorrect) {
+                    opt.className = "mcq-option w-full text-left p-4 rounded-xl border-2 border-emerald-400 bg-emerald-50 mb-3 focus:outline-none";
+                    iconDiv.className = "w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold shrink-0";
+                    iconDiv.innerHTML = '<i class="fas fa-check"></i>';
+                } else if (opt === btn && !isCorrect) {
+                    opt.className = "mcq-option w-full text-left p-4 rounded-xl border-2 border-rose-400 bg-rose-50 mb-3 focus:outline-none";
+                    iconDiv.className = "w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold shrink-0";
+                    iconDiv.innerHTML = '<i class="fas fa-times"></i>';
+                } else {
+                    opt.className = "mcq-option w-full text-left p-4 rounded-xl border-2 border-slate-200 bg-slate-50 opacity-50 mb-3 focus:outline-none cursor-not-allowed";
+                }
+            });
+
+            feedback.classList.remove('hidden');
+            if (isCorrect) {
+                mcqScore++;
+                feedback.className = "mt-6 p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900";
+                feedback.innerHTML = `<div class="font-bold mb-2 flex items-center"><i class="fas fa-check-circle text-xl text-emerald-500 ml-2"></i> إجابة صحيحة!</div>
+                                      <p class="text-sm leading-relaxed text-right" dir="rtl">${qData.e}</p>`;
+            } else {
+                feedback.className = "mt-6 p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-900";
+                feedback.innerHTML = `<div class="font-bold mb-2 flex items-center"><i class="fas fa-times-circle text-xl text-rose-500 ml-2"></i> إجابة خاطئة!</div>
+                                      <p class="text-sm leading-relaxed text-right" dir="rtl"><strong class="ml-1 text-rose-700">التفسير:</strong> ${qData.e}</p>`;
+            }
+
+            nextBtn.classList.remove('hidden');
+        };
+
+        window.nextMcqQuestion = function () {
+            currentMcqIndex++;
+            loadMcqQuestion();
+        };
+
+    </script>
+</body>
+
+</html>
