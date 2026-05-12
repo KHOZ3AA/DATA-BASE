@@ -38,23 +38,11 @@
             color: #ae81ff;
         }
 
-        /* Custom Scrollbar for code blocks */
-        pre::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        pre::-webkit-scrollbar-track {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-
-        pre::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
-        }
-
-        pre::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
+        /* Force wrapping for code blocks to prevent horizontal scroll */
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
         }
     </style>
 </head>
@@ -78,15 +66,15 @@
     <main class="max-w-5xl mx-auto px-4">
 
         <!-- Tabs Navigation -->
-        <div class="flex justify-center mb-8 space-x-4 space-x-reverse">
+        <div class="flex flex-wrap justify-center mb-8 gap-3">
             <button id="tabQuestionsBtn"
-                class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-md transition-colors focus:outline-none"><i
+                class="w-full sm:w-auto flex-1 px-4 sm:px-8 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-md transition-colors focus:outline-none text-sm sm:text-base whitespace-nowrap"><i
                     class="fas fa-laptop-code ml-2"></i> التطبيقات العملية</button>
             <button id="tabLecturesBtn"
-                class="px-8 py-3 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold shadow-sm transition-colors focus:outline-none"><i
+                class="w-full sm:w-auto flex-1 px-4 sm:px-8 py-3 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold shadow-sm transition-colors focus:outline-none text-sm sm:text-base whitespace-nowrap"><i
                     class="fas fa-book-open ml-2"></i> شرح السكاشن</button>
             <button id="tabMcqBtn"
-                class="px-8 py-3 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold shadow-sm transition-colors focus:outline-none"><i
+                class="w-full sm:w-auto flex-1 px-4 sm:px-8 py-3 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold shadow-sm transition-colors focus:outline-none text-sm sm:text-base whitespace-nowrap"><i
                     class="fas fa-question-circle ml-2"></i> اختبار MCQ</button>
         </div>
 
@@ -100,7 +88,7 @@
                         class="w-full bg-slate-50 border border-slate-300 text-slate-900 rounded-lg pr-12 pl-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
                 </div>
                 <select id="filterSelect"
-                    class="bg-slate-50 border border-slate-300 text-slate-900 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                    class="w-full md:w-auto bg-slate-50 border border-slate-300 text-slate-900 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                     <option value="All">جميع السكاشن (All)</option>
                     <option value="Les01">سكشن 1: أساسيات (Basic SELECT)</option>
                     <option value="Les02">سكشن 2: تقييد وترتيب (Restrict & Sort)</option>
